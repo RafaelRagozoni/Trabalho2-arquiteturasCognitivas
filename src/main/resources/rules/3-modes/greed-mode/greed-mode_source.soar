@@ -1,0 +1,3 @@
+source elaborations.soar
+source colect-it.soar
+source move-jewel.soar

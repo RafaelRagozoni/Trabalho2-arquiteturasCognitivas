@@ -1,0 +1,42 @@
+sp {initialize-food
+   (state <s> ^name 1-modes
+              ^io.input-link <il>)
+-->
+   (<il> ^CREATURE <CREATURE>)
+   (<CREATURE> ^MEMORY <MEMORY>
+               ^PARAMETERS <PARAMETERS>
+               ^POSITION <POSITION>
+               ^SENSOR <SENSOR>)
+   (<PARAMETERS> ^MINFUEL 400
+                 ^TIMESTAMP 2)
+   (<POSITION> ^X 100
+               ^Y 100)
+   (<SENSOR> ^FUEL.VALUE 300
+             ^VISUAL <V>)
+   (<V> ^ENTITY <E>
+        ^ENTITY <E2>)
+   (<E> ^DISTANCE 1
+        ^X 1
+        ^Y 1
+        ^X2 1
+        ^Y2 1
+        ^TYPE FOOD
+        ^NAME NOME
+        ^COLOR COR)
+   (<E2> ^DISTANCE 1
+        ^X 100
+        ^Y 425
+        ^X2 1
+        ^Y2 1
+        ^TYPE JEWEL
+        ^NAME JOIA
+        ^COLOR COR)
+}
+
+sp {clone-creature
+   (state <s> ^name 3-modes
+              ^io.input-link.CREATURE <c>)
+-->
+   (<s> ^CREATURE (deep-copy <c>))}
+               
+               

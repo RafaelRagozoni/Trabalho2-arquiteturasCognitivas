@@ -1,0 +1,55 @@
+# Propose*see*entity*without*memory*count:
+sp {propose*see*entity*without*memory*count
+   #   (state <s> ^superstate <ss>)
+   (state <s> ^io.input-link <il>
+         ^name 3-modes)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL.ENTITY <entity>
+               ^POSITION <position>)
+   (<position> ^X <creatureX>
+               ^Y <creatureY>)
+   (<entity> ^TYPE <type> << JEWEL FOOD >>)
+   (<entity> ^X <x>)
+   (<entity> ^Y <y>) 
+   (<entity> ^NAME <name>)
+   (<entity> ^COLOR <color>)
+   (<creature> ^MEMORY <memory>)   
+   -(<memory> ^ENTITY.NAME <name>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name seeEntityWithoutMemoryCount)
+   (<o> ^parameterEntity <newEntity>)
+   (<newEntity> ^Name <name>)
+   (<newEntity> ^Type <type>)
+   (<newEntity> ^X <x>)
+   (<newEntity> ^Y <y>)
+   (<newEntity> ^Color <color>)
+   (<newEntity> ^DISTANCE (sqrt (+ (* (- <creatureX> <x>) (- <creatureX> <x>)) (* (- <creatureY> <y>) (- <creatureY> <y>)))))}
+  
+# Apply*see*entity*without*memory*count:
+# If the see operator is selected, then generate an output command to it 
+sp {apply*see*entity*without*memory*count
+   (state <ss> ^operator <o>)
+   (<ss> ^io <io>
+         ^name 3-modes)
+   (<io> ^input-link <il>)
+   (<io> ^output-link <ol>)
+   (<ss> ^CREATURE <creature>)
+   (<creature> ^MEMORY <memory>)  
+   (<o> ^name seeEntityWithoutMemoryCount)
+   (<o> ^parameterEntity <newEntity>)
+   (<newEntity> ^X <x>)
+   (<newEntity> ^Y <y>)
+   (<newEntity> ^Name <name>)
+   (<newEntity> ^Type <type>)
+   (<newEntity> ^Color <color>)
+   (<newEntity> ^DISTANCE <distance>)
+-->
+   (<memory> ^ENTITY <memoryEntity>)
+   (<memoryEntity> ^X <x>)
+   (<memoryEntity> ^Y <y>)
+   (<memoryEntity> ^NAME <name>)
+   (<memoryEntity> ^TYPE <type>)
+   (<memoryEntity> ^COLOR <color>)
+   (<memoryEntity> ^DISTANCE <distance>)}
+ 

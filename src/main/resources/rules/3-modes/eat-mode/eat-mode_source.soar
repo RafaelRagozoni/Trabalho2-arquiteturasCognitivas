@@ -1,0 +1,3 @@
+source elaborations.soar
+source eat-it.soar
+source move-food.soar

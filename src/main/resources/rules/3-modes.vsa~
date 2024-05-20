@@ -1,0 +1,27 @@
+VERSION 4
+/3-modes/3-modes.dm
+0	ROOT 3-modes 3-modes 1
+1	0	FOPERATOR _firstload _firstload.soar 2
+2	0	FOLDER all all 3
+3	0	FOLDER elaborations elaborations 4
+4	3	FOPERATOR _all _all.soar 5
+5	3	FOPERATOR top-state top-state.soar 6
+6	0	OPERATOR delivery-mode delivery-mode.soar 7
+7	0	HLOPERATOR eat-mode eat-mode.soar eat-mode 70 8
+8	7	FOPERATOR elaborations elaborations.soar 9
+9	7	OPERATOR eat-it eat-it.soar 10
+10	7	OPERATOR move-food move-food.soar 11
+11	0	HLOPERATOR greed-mode greed-mode.soar greed-mode 134 12
+12	11	FOPERATOR elaborations elaborations.soar 13
+13	11	OPERATOR colect-it colect-it.soar 14
+14	11	OPERATOR move-jewel move-jewel.soar 15
+15	0	OPERATOR initialize-3-modes initialize-3-modes.soar 16
+16	0	OPERATOR memory memory.soar 17
+17	0	HLOPERATOR preferences preferences.soar preferences 125 18
+18	17	FOPERATOR elaborations elaborations.soar 19
+19	17	OPERATOR eat-mode_x_memory eat-mode_x_memory.soar 21
+20	17	OPERATOR greed-mode_x_memory greed-mode_x_memory.soar 20
+21	17	OPERATOR move-food-distance move-food-distance.soar 22
+22	0	OPERATOR representation representation.soar 23
+23	0	OPERATOR wander wander.soar 24
+END

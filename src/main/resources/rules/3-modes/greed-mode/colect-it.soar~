@@ -1,0 +1,36 @@
+sp {greed-mode*propose*colect-it
+   (state <s> ^name greed-mode
+              ^superstate <ss>)
+   (<ss> ^io.input-link <il>
+         ^name 3-modes)
+   (<ss> ^CREATURE.MEMORY.ENTITY <ENTITY>)
+   (<ENTITY> ^TYPE JEWEL
+             ^NAME <jewelName>
+             ^DISTANCE <distance> < 30)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name colect-it
+         ^JEWELNAME <jewelName>)
+}
+##################################################################
+sp {greed-mode*apply*colect-it
+   (state <s> ^name greed-mode
+              ^superstate <ss>
+              ^operator <o>)
+   (<ss> ^io.output-link <ol>
+         ^name 3-modes
+         ^CREATURE <creature>)
+   (<creature> ^MEMORY <memory>
+               ^SENSOR <sensor>)
+   (<sensor> ^VISUAL <visual>)
+   (<visual> ^ENTITY <visualEntity>)
+   (<memory> ^ENTITY <ENTITY>)
+   (<o> ^name colect-it
+        ^JEWELNAME <jewelName>)
+   (<ENTITY> ^NAME <jewelName>)
+   (<visualEntity> ^NAME <jewelName>)
+-->
+   (<ol> ^GET <command>)
+   (<command> ^Name <jewelName>)
+   (<memory> ^ENTITY <ENTITY> -)
+   (<visual> ^ENTITY <visualEntity> -)}

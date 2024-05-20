@@ -1,0 +1,15 @@
+sp {propose*initialize-3-modes
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-3-modes)
+}
+
+sp {apply*initialize-3-modes
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-3-modes)
+-->
+   (<s> ^name 3-modes)
+}
+

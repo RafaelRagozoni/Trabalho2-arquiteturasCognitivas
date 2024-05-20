@@ -1,0 +1,27 @@
+sp {propose*wander
+   (state <s> ^attribute state
+              ^impasse no-change                           
+              ^superstate <ss>)
+   (<ss> ^io.input-link <il>)
+   (<ss> ^superstate nil)
+   (<ss> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <visual>)
+   -(<visual> ^ENTITY <entity>)
+-->
+   (<ss> ^operator <o> + = )
+   (<o> ^name wander)}
+   
+# Apply*wander:
+# If the wander operator is selected, then generate an output command to it 
+sp {apply*wander
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^output-link <ol>)
+   (<o> ^name wander)
+-->
+   (<ol> ^MOVE <command>)
+   (<command> ^Vel 0)
+   (<command> ^VelR 2)
+   (<command> ^VelL 0)
+   (interrupt)
+}

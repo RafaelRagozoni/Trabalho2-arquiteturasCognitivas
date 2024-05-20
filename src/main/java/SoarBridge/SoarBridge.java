@@ -265,6 +265,8 @@ public class SoarBridge
             if (agent != null)
             {
                 List<Wme> Commands = Wmes.matcher(agent).filter(agent.getInputOutput().getOutputLink());
+                /** modificar */
+                printOutputWMEs();
 
                 for (Wme com : Commands)
                 {

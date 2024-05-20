@@ -1,0 +1,40 @@
+sp {eat-mode*propose*eat-it
+   (state <s> ^name eat-mode
+              ^superstate <ss>)
+   (<ss> ^io.input-link <il>
+         ^name 3-modes
+         ^CREATURE.MEMORY.ENTITY <ENTITY>)
+   (<ENTITY> ^TYPE FOOD
+             ^NAME <foodName>
+             ^DISTANCE <distance> < 30)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name eat-it
+         ^FOODNAME <foodName>)
+}
+##################################################################
+sp {eat-mode*apply*eat-it
+   (state <s> ^name eat-mode
+              ^superstate <ss>
+              ^operator <o>)
+   (<ss> ^io.output-link <ol>
+         ^name 3-modes
+         ^CREATURE <creature>)
+   (<creature> ^MEMORY <memory>
+               ^SENSOR <sensor>)
+   (<sensor> ^FUEL <fuel>
+             ^VISUAL <visual>)
+   (<visual> ^ENTITY <visualEntity>)
+   (<fuel> ^VALUE <fuelValue>)
+   (<memory> ^ENTITY <ENTITY>)
+   (<o> ^name eat-it
+        ^FOODNAME <foodName>)
+   (<ENTITY> ^NAME <foodName>)
+   (<visualEntity> ^NAME <foodName>)
+-->
+   (<ol> ^EAT <command>)
+   (<command> ^Name <foodName>)
+   (<fuel> ^VALUE <fuelValue> -
+           ^VALUE (+ <fuelValue> 500))
+   (<memory> ^ENTITY <ENTITY> -)
+   (<visual> ^ENTITY <visualEntity> -)}

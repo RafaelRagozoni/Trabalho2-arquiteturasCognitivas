@@ -1,0 +1,9 @@
+sp {move-food*distance*preferences
+(state <s> ^operator <o> + 
+                     <o2> +)
+(<o> ^name move-food
+     ^DISTANCE <d1>)
+(<o2> ^name move-food
+      ^DISTANCE <d2>)
+-->
+(<s> ^operator <o> > <o2>)}

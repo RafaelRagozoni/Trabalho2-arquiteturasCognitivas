@@ -1,0 +1,24 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source delivery-mode.soar
+source eat-mode.soar
+pushd eat-mode
+source eat-mode_source.soar
+popd
+source greed-mode.soar
+pushd greed-mode
+source greed-mode_source.soar
+popd
+source initialize-3-modes.soar
+source memory.soar
+source preferences.soar
+pushd preferences
+source preferences_source.soar
+popd
+source representation.soar
+source wander.soar
