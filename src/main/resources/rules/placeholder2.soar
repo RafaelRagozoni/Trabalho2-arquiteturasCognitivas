@@ -375,7 +375,7 @@ sp {apply*get*jewel
    (<memory> ^COUNT <quantity>)  
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <jewelName>)
-   # - (<ol> ^GET <anything>)   # Colocado por Ricardo
+   - (<ol> ^GET <anything>)   # Colocado por Ricardo
 -->
    (<ol> ^GET <command>)
    (<command> ^Name <jewelName>)
