@@ -12,6 +12,34 @@ sp {clone-creature
    (<s> ^CREATURE (deep-copy <creature>))
    }
 
+###################################  ORGANIZE  ###################################
+sp {propose*organize*needed*jewels
+   (state <s> ^io.input-link <il>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^LEAFLETS.JEWELS <JEWELS>)
+   (<JEWELS> ^<cor> <jewel1>)
+   (<JEWELS> ^<cor> <jewel2> {<> <jewel1> <jewel2>})
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name organizeJewels)
+   (<o> ^cor <cor>)
+   (<o> ^value <jewel1> + <jewel2>)
+}
+
+sp {apply*organize*needed*jewels
+   (state <s> ^io.input-link <il>)
+   (<s> ^operator <o>)
+   (<s> ^CREATURE <creature>)
+   (<o> ^name organizeJewels)
+   (<o> ^cor <cor>)
+   (<o> ^value <numberJewels>)
+   (<creature> ^LEAFLETS.JEWELS <JEWELS>)
+   (<JEWELS> ^<cor> <jewel>)
+-->
+   (<JEWELS> ^<cor> <jewel> -)
+   (<JEWELS> ^<cor> <numberJewels>)
+}
+
 ###################################  DELIVERY  ###################################
 # This operator will make the agent delivery the leaflet when is completed
 # Propose*delivery:

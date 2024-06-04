@@ -155,7 +155,7 @@ public class SoarBridge
               //Initialize Creature Leaflets
               creatureLeaflets = CreateIdWME(creature,"LEAFLETS");
               Identifier creatureLeafletsLeafletMissing = CreateIdWME(creatureLeaflets,"JEWELS");
-              for (int i = 0; i<=0; i++){
+              for (int i = 0; i<=2; i++){
                 
                 if (c.getLeaflets().get(i).getSituation() > 0){
                     continue;
