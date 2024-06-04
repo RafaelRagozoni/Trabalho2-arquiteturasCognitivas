@@ -31,6 +31,8 @@ sp {apply*wander
               ^io <io>)
    (<io> ^output-link <ol>)
    (<o> ^name wander)
+   -(<ol> ^MOVE <anywhere>)
+   -(<ol> ^GET <anything>)
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel 0)
@@ -197,6 +199,8 @@ sp {apply*move*food
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
+   -(<ol> ^MOVE <anywhere>)
+   -(<ol> ^GET <anything>)
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel 1)
@@ -312,6 +316,8 @@ sp {apply*move*jewel
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
+   -(<ol> ^MOVE <anywhere>)
+   -(<ol> ^GET <anything>)
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel 1)
@@ -337,6 +343,7 @@ sp {apply*moveJewel*remove*jewel
 (<entityInMemory> ^Y <y>)      
 -(<creature> ^SENSOR.VISUAL.ENTITY.X <entityX> <x>)
 -(<creature> ^SENSOR.VISUAL.ENTITY.Y <entityY> <y>)
+
 -->
 (<memory> ^ENTITY <entityInMemory> -)
 (<memory> ^COUNT <quantity> -
@@ -413,6 +420,8 @@ sp {apply*avoidBrick
    (<o> ^name avoidBrick)
    (<o> ^parameter <distance>)              
    (<io> ^output-link <ol>)
+   -(<ol> ^MOVE <anywhere>)
+   -(<ol> ^GET <anything>)
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel  0)
