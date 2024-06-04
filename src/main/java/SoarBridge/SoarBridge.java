@@ -29,6 +29,9 @@ import ws3dproxy.CommandUtility;
 import ws3dproxy.model.Creature;
 import ws3dproxy.model.Thing;
 import ws3dproxy.util.Constants;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  *
@@ -49,6 +52,7 @@ public class SoarBridge
     Identifier creatureParameters;
     Identifier creaturePosition;
     Identifier creatureMemory;
+    Identifier creatureLeaflets;
     
     Environment env;
     public Creature c;
@@ -147,12 +151,58 @@ public class SoarBridge
               //SimulationCreature creatureParameter = (SimulationCreature)parameter;
               // Initialize Creature Entity
               creature = CreateIdWME(inputLink, "CREATURE");
+              
+              //Initialize Creature Leaflets
+              creatureLeaflets = CreateIdWME(creature,"LEAFLETS");
+
+              Identifier creatureLeafletsLeaflet1 = CreateIdWME(creatureLeaflets,"LEAFLET");
+              CreateFloatWME(creatureLeafletsLeaflet1, "ID",c.getLeaflets().get(0).getID());
+              CreateFloatWME(creatureLeafletsLeaflet1, "PAYMENT",c.getLeaflets().get(0).getPayment());
+              CreateFloatWME(creatureLeafletsLeaflet1, "SITUATION",c.getLeaflets().get(0).getSituation());
+              Identifier creatureLeafletsLeaflet1Missing = CreateIdWME(creatureLeafletsLeaflet1,"JEWELS");
+              HashMap<String, Integer> result1 = c.getLeaflets().get(0).getWhatToCollect();
+              for (Map.Entry<String, Integer> entry : result1.entrySet()) {
+                String key = entry.getKey();
+                Integer value = entry.getValue();
+                CreateFloatWME(creatureLeafletsLeaflet1Missing, key, value);
+                System.out.println("Type: " + key + ", Missing Number: " + value);
+              }
+            //   System.out.println(c.getLeaflets.get(0).getWhatToCollect());
+
+              Identifier creatureLeafletsLeaflet2 = CreateIdWME(creatureLeaflets,"LEAFLET");
+              CreateFloatWME(creatureLeafletsLeaflet2, "ID",c.getLeaflets().get(1).getID());
+              CreateFloatWME(creatureLeafletsLeaflet2, "PAYMENT",c.getLeaflets().get(1).getPayment());
+              CreateFloatWME(creatureLeafletsLeaflet2, "SITUATION",c.getLeaflets().get(1).getSituation());
+              Identifier creatureLeafletsLeaflet2Missing = CreateIdWME(creatureLeafletsLeaflet2,"JEWELS");
+              HashMap<String, Integer> result2 = c.getLeaflets().get(1).getWhatToCollect();
+              for (Map.Entry<String, Integer> entry : result2.entrySet()) {
+                String key = entry.getKey();
+                Integer value = entry.getValue();
+                CreateFloatWME(creatureLeafletsLeaflet2Missing, key, value);
+                System.out.println("Type: " + key + ", Missing Number: " + value);
+              }
+            //   System.out.println(c.getLeaflets.get(1).getItems());
+
+              Identifier creatureLeafletsLeaflet3 = CreateIdWME(creatureLeaflets,"LEAFLET");
+              CreateFloatWME(creatureLeafletsLeaflet3, "ID",c.getLeaflets().get(2).getID());
+              CreateFloatWME(creatureLeafletsLeaflet3, "PAYMENT",c.getLeaflets().get(2).getPayment());
+              CreateFloatWME(creatureLeafletsLeaflet3, "SITUATION",c.getLeaflets().get(2).getSituation());
+              Identifier creatureLeafletsLeaflet3Missing = CreateIdWME(creatureLeafletsLeaflet3,"JEWELS");
+              HashMap<String, Integer> result3 = c.getLeaflets().get(2).getWhatToCollect();
+              for (Map.Entry<String, Integer> entry : result3.entrySet()) {
+                String key = entry.getKey();
+                Integer value = entry.getValue();
+                CreateFloatWME(creatureLeafletsLeaflet3Missing, key, value);
+                System.out.println("Type: " + key + ", Missing Number: " + value);
+              }
+
+
               // Initialize Creature Memory
               creatureMemory = CreateIdWME(creature, "MEMORY");
               // Set Creature Parameters
               Calendar lCDateTime = Calendar.getInstance();
               creatureParameters = CreateIdWME(creature, "PARAMETERS");
-              CreateFloatWME(creatureParameters, "MINFUEL", 400);
+              CreateFloatWME(creatureParameters, "MINFUEL",400);
               CreateFloatWME(creatureParameters, "TIMESTAMP", lCDateTime.getTimeInMillis());
               // Setting creature Position
               creaturePosition = CreateIdWME(creature, "POSITION");
@@ -259,19 +309,39 @@ public class SoarBridge
     private ArrayList<Command> processOutputLink() 
     {
         ArrayList<Command> commandList = new ArrayList<Command>();
+        // System.out.println(commandList);
 
         try
         {
             if (agent != null)
             {
                 List<Wme> Commands = Wmes.matcher(agent).filter(agent.getInputOutput().getOutputLink());
-                /** modificar */
-                printOutputWMEs();
+                // printOutputWMEs();
+                // Wme com = Commands.get(0);
+                // Identifier commandId = com.getValue().asIdentifier();
+                // if (commandId != null){
+                //     String commandName = com.getAttribute().toString();
+                //     System.out.println(commandName);
+                // }
+
+                // String comName = com.getAttribute().asString().getValue();
+                // Command.CommandType comCommandType = Enum.valueOf(Command.CommandType.class, comName);
+                // System.out.println(comCommandType);
+                // Command comCommand = null;
 
                 for (Wme com : Commands)
                 {
+                // for (int i=0 ; i<2 ; i++)
+                // {
+                    // if (true){
+                    //     continue;
+                    // }
                     String name  = com.getAttribute().asString().getValue();
+                    // System.out.println("name");
+                    // System.out.println(name);
                     Command.CommandType commandType = Enum.valueOf(Command.CommandType.class, name);
+                    // System.out.println("commandType");
+                    // System.out.println(commandType);
                     Command command = null;
 
                     switch(commandType)
@@ -283,8 +353,14 @@ public class SoarBridge
                             Float xPosition = null;
                             Float yPosition = null;
                             rightVelocity = tryParseFloat(GetParameterValue("VelR"));
+                            if (rightVelocity == null) rightVelocity = tryParseFloat("2");
+                            
                             leftVelocity = tryParseFloat(GetParameterValue("VelL"));
+                            if (leftVelocity == null) leftVelocity = tryParseFloat("0");
+                            
                             linearVelocity = tryParseFloat(GetParameterValue("Vel"));
+                            if (linearVelocity == null) linearVelocity = tryParseFloat("0");
+                            
                             xPosition = tryParseFloat(GetParameterValue("X"));
                             yPosition = tryParseFloat(GetParameterValue("Y"));
                             command = new Command(Command.CommandType.MOVE);
@@ -403,12 +479,12 @@ public class SoarBridge
             {
                 switch (command.getCommandType())
                 {
-                    case MOVE:
-                        processMoveCommand((CommandMove)command.getCommandArgument());
-                    break;
-
                     case GET:
                         processGetCommand((CommandGet)command.getCommandArgument());
+                    break;
+                    
+                    case MOVE:
+                        processMoveCommand((CommandMove)command.getCommandArgument());
                     break;
 
                     case EAT:
@@ -455,7 +531,11 @@ public class SoarBridge
     {
         if (soarCommandGet != null)
         {
-            c.putInSack(soarCommandGet.getThingName());
+            try{
+                c.putInSack(soarCommandGet.getThingName());
+            }
+            catch(Exception e) {
+            }
         }
         else
         {
