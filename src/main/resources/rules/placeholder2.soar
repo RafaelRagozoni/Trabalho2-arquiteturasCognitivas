@@ -376,12 +376,17 @@ sp {apply*get*jewel
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <jewelName>)
    - (<ol> ^GET <anything>)   # Colocado por Ricardo
+
+   (<creature> ^SENSOR.VISUAL <visual>)
+   (<visual> ^ENTITY <visualEntity>)
+   (<visualEntity> ^NAME <visualEntityName> <jewelName>)
 -->
    (<ol> ^GET <command>)
    (<command> ^Name <jewelName>)
    (<memory> ^COUNT <quantity> -
              ^COUNT (- <quantity> 1))
    (<memory> ^ENTITY <memoryEntity> -)
+   (<visual> ^ENTITY <visualEntity> -)
 }
   
 
