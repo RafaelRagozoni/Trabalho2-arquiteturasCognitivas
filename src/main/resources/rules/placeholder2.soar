@@ -33,6 +33,7 @@ sp {apply*wander
    (<o> ^name wander)
    -(<ol> ^MOVE <anywhere>)
    -(<ol> ^GET <anything>)
+   -(<ol> ^EAT <something>)
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel 0)
@@ -40,16 +41,6 @@ sp {apply*wander
    (<command> ^VelL 0)
 }
     
-# If the wander operator is selected,
-# and there is a completed move command on the output link,
-# then remove that command.   
-# sp {apply*wander*remove*move
-# (state <s> ^operator.name wander
-#            ^io.output-link <out>)
-# (<out> ^MOVE <move>)
-# (<move> ^status complete)
-# -->
-# (<out> ^MOVE <move> -)}   
 
 ################ SEE ENTITY WITH MEMORY COUNT #####################
 # This operator will make the agent hold some entities in memory if the agent already has some entities in memory
@@ -199,6 +190,7 @@ sp {apply*move*food
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
+   -(<ol> ^EAT <something>)
    -(<ol> ^MOVE <anywhere>)
    -(<ol> ^GET <anything>)
 -->
@@ -212,25 +204,47 @@ sp {apply*move*food
 
 #Remove the food from memory because it is not there anymore 
 sp {apply*moveFood*remove*food
-(state <s> ^operator <o>
-           ^io.input-link <il>)
-(<o> ^name moveFood)
-(<o> ^parameter <food>)
-(<food> ^X <x>)
-(<food> ^Y <y>)
-(<s> ^CREATURE <creature>)
-(<creature> ^MEMORY <memory>)
-(<memory> ^ENTITY <entityInMemory>) 
-(<memory> ^COUNT <quantity>)
-(<entityInMemory> ^X <x>)
-(<entityInMemory> ^Y <y>)      
--(<creature> ^SENSOR.VISUAL.ENTITY.X <entityX> <x>)
--(<creature> ^SENSOR.VISUAL.ENTITY.Y <entityY> <y>)
+   (state <s> ^operator <o>
+            ^io.input-link <il>)
+   (<o> ^name moveFood)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^MEMORY <memory>)
+   (<memory> ^ENTITY <entityInMemory>) 
+   (<memory> ^COUNT <quantity>)
+   (<entityInMemory> ^X <x>)
+   (<entityInMemory> ^Y <y>)      
+   -(<creature> ^SENSOR.VISUAL.ENTITY.X <entityX> <x>)
+   -(<creature> ^SENSOR.VISUAL.ENTITY.Y <entityY> <y>)
 -->
-(<memory> ^ENTITY <entityInMemory> -)
-(<memory> ^COUNT <quantity> -
-          ^COUNT (- <quantity> 1))}   
+   (<memory> ^ENTITY <entityInMemory> -)
+   (<memory> ^COUNT <quantity> -
+            ^COUNT (- <quantity> 1))}
 
+# Apply*move*food*position:
+# If the move operator is selected, then generate an output command to it 
+sp {apply*move*food*position*update
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+   (<o> ^name moveFood)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+   (<s> ^CREATURE <creature>)
+
+   (<creature> ^POSITION <creaturePosition>)
+   (<creaturePosition> ^X <creatureX>)
+   (<creaturePosition> ^Y <creatureY>)
+-->
+   (<creaturePosition> ^X <creatureX> -)
+   (<creaturePosition> ^Y <creatureY> -)
+   (<creaturePosition> ^X <x>)
+   (<creaturePosition> ^Y <y>)
+}
 ###############################  EAT FOOD  #####################################
 # This operator will make the agent eat the food
 
@@ -265,12 +279,19 @@ sp {apply*eat*food
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <foodName>)
    - (<ol> ^EAT <something>)
+   - (<ol> ^MOVE <anywhere>)
+   - (<ol> ^GET <anything>)
+
+   (<creature> ^SENSOR.VISUAL <visual>)
+   (<visual> ^ENTITY <visualEntity>)
+   (<visualEntity> ^NAME <visualEntityName> <foodName>)
 -->
    (<ol> ^EAT <command>)
    (<command> ^Name <foodName>)
    (<memory> ^COUNT <quantity> -
              ^COUNT (- <quantity> 1))
    (<memory> ^ENTITY <memoryEntity> -)
+   (<visual> ^ENTITY <visualEntity> -)
 }
 
 #############################  MOVE JEWEL  #####################################
@@ -316,6 +337,7 @@ sp {apply*move*jewel
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
+   -(<ol> ^EAT <something>)
    -(<ol> ^MOVE <anywhere>)
    -(<ol> ^GET <anything>)
 -->
@@ -348,6 +370,30 @@ sp {apply*moveJewel*remove*jewel
 (<memory> ^ENTITY <entityInMemory> -)
 (<memory> ^COUNT <quantity> -
           ^COUNT (- <quantity> 1))}   
+
+# Apply*move*jewel*position*update:
+# If the move operator is selected, then generate an output command to it 
+sp {apply*move*jewel*position*update
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+   (<o> ^name moveJewel)
+   (<o> ^parameter <jewel>)
+   (<jewel> ^X <x>)
+   (<jewel> ^Y <y>)
+   (<s> ^CREATURE <creature>)
+
+   (<creature> ^POSITION <creaturePosition>)
+   (<creaturePosition> ^X <creatureX>)
+   (<creaturePosition> ^Y <creatureY>)
+-->
+   (<creaturePosition> ^X <creatureX> -)
+   (<creaturePosition> ^Y <creatureY> -)
+   (<creaturePosition> ^X <x>)
+   (<creaturePosition> ^Y <y>)
+}
+
 
 ##############################  GET JEWEL  #####################################
 # This operator will make the agent get the jewel
@@ -422,6 +468,7 @@ sp {apply*avoidBrick
    (<io> ^output-link <ol>)
    -(<ol> ^MOVE <anywhere>)
    -(<ol> ^GET <anything>)
+   -(<ol> ^EAT <something>)
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel  0)
