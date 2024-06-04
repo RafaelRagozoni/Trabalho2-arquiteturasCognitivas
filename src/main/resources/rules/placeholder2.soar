@@ -12,34 +12,6 @@ sp {clone-creature
    (<s> ^CREATURE (deep-copy <creature>))
    }
 
-###################################  ORGANIZE  ###################################
-sp {propose*organize*needed*jewels
-   (state <s> ^io.input-link <il>)
-   (<s> ^CREATURE <creature>)
-   (<creature> ^LEAFLETS.JEWELS <JEWELS>)
-   (<JEWELS> ^<cor> <jewel1>)
-   (<JEWELS> ^<cor> <jewel2> {<> <jewel1> <jewel2>})
--->
-   (<s> ^operator <o> + >)
-   (<o> ^name organizeJewels)
-   (<o> ^cor <cor>)
-   (<o> ^value <jewel1> + <jewel2>)
-}
-
-sp {apply*organize*needed*jewels
-   (state <s> ^io.input-link <il>)
-   (<s> ^operator <o>)
-   (<s> ^CREATURE <creature>)
-   (<o> ^name organizeJewels)
-   (<o> ^cor <cor>)
-   (<o> ^value <numberJewels>)
-   (<creature> ^LEAFLETS.JEWELS <JEWELS>)
-   (<JEWELS> ^<cor> <jewel>)
--->
-   (<JEWELS> ^<cor> <jewel> -)
-   (<JEWELS> ^<cor> <numberJewels>)
-}
-
 ###################################  DELIVERY  ###################################
 # This operator will make the agent delivery the leaflet when is completed
 # Propose*delivery:
@@ -50,27 +22,28 @@ sp {propose*delivery
    (<leaflet> ^SITUATION <situation> > 0)
    (<leaflet> ^ID <leafletID>)
 -->
+   (halt)
    (<s> ^operator <o> +)
    (<o> ^name delivery)
    (<o> ^leafletID <leafletID>)}
    
-# Apply*get*jewel:
+# Apply*delivery:
 # If the move operator is selected, then generate an output command to it 
-sp {apply*get*jewel
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)      
-   (<io> ^output-link <ol>)
-   (<o> ^name delivery)
-   (<o> ^leafletID <leafletID>)
+# sp {apply*delivery*jewel
+#    (state <s> ^operator <o>
+#               ^io <io>)
+#    (<io> ^input-link <il>)      
+#    (<io> ^output-link <ol>)
+#    (<o> ^name delivery)
+#    (<o> ^leafletID <leafletID>)
 
-   -(<ol> ^MOVE <anywhere>)
-   -(<ol> ^GET <anything>)
-   -(<ol> ^EAT <something>)
--->
-   (<ol> ^DELIVERY <command>)
-   (<command> ^Name <leafletID>)
-}
+#    -(<ol> ^MOVE <anywhere>)
+#    -(<ol> ^GET <anything>)
+#    -(<ol> ^EAT <something>)
+# -->
+#    (<ol> ^DELIVERY <command>)
+#    (<command> ^Name <leafletID>)
+# }
    
 # Apply*wander:
 # If the wander operator is selected, then generate an output command to it 
@@ -385,7 +358,6 @@ sp {propose*move*jewel
    (<memory> ^ENTITY <entityInMemory>)
    (<creature> ^POSITION <creaturePosition>)
 
-   # (<creature> ^LEAFLETS.LEAFLET.JEWELS <joiaValida>)
    (<creature> ^LEAFLETS.JEWELS <joiaValida>)
    (<joiaValida> ^<cor> <faltante> > 0)
 

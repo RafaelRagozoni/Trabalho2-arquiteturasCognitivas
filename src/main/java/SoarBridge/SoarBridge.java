@@ -155,23 +155,34 @@ public class SoarBridge
               //Initialize Creature Leaflets
               creatureLeaflets = CreateIdWME(creature,"LEAFLETS");
               Identifier creatureLeafletsLeafletMissing = CreateIdWME(creatureLeaflets,"JEWELS");
+              HashMap<String, Integer> accumulatedResults = new HashMap<>();
+                
               for (int i = 0; i<=2; i++){
                 
-                if (c.getLeaflets().get(i).getSituation() > 0){
+                if (c.getLeaflets().get(i).isCompleted()) {
+                    System.out.println(c.getLeaflets().get(i).isCompleted());
                     continue;
+                }
+                
+                HashMap<String, Integer> result = c.getLeaflets().get(i).getWhatToCollect();
+                
+                for (Map.Entry<String, Integer> entry : result.entrySet()) {
+                  String key = entry.getKey();
+                  Integer value = entry.getValue();
+                  accumulatedResults.put(key, accumulatedResults.getOrDefault(key, 0) + value);
                 }
 
                 Identifier creatureLeafletsLeaflet = CreateIdWME(creatureLeaflets,"LEAFLET");
                 CreateFloatWME(creatureLeafletsLeaflet, "ID",c.getLeaflets().get(i).getID());
                 CreateFloatWME(creatureLeafletsLeaflet, "PAYMENT",c.getLeaflets().get(i).getPayment());
                 CreateFloatWME(creatureLeafletsLeaflet, "SITUATION",c.getLeaflets().get(i).getSituation());
-                HashMap<String, Integer> result = c.getLeaflets().get(i).getWhatToCollect();
-                for (Map.Entry<String, Integer> entry : result.entrySet()) {
-                    String key = entry.getKey();
-                    Integer value = entry.getValue();
-                    CreateFloatWME(creatureLeafletsLeafletMissing, key, value);
-                    // System.out.println("Type: " + key + ", Missing Number: " + value);
-                }
+              }
+              
+              for (Map.Entry<String, Integer> entry : accumulatedResults.entrySet()) {
+                  String key = entry.getKey();
+                  Integer value = entry.getValue();
+                  CreateFloatWME(creatureLeafletsLeafletMissing, key, value);
+                  // System.out.println("Type: " + key + ", Missing Number: " + value);
               }
 
               // Initialize Creature Memory
