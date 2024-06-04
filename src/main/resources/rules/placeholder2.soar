@@ -18,7 +18,7 @@ sp {clone-creature
 sp {propose*wander
    (state <s> ^io.input-link <il>)
    (<ss> ^superstate nil)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL <visual>)
 -->
    (<ss> ^operator <o> +)
@@ -55,7 +55,7 @@ sp {apply*wander
 # Propose*see*entity*with*memory*count:
 sp {propose*see*entity*with*memory*count
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL.ENTITY <entity>)     
    (<entity> ^TYPE <type> << JEWEL FOOD >>)   
    (<entity> ^COLOR <color>)
@@ -82,7 +82,7 @@ sp {apply*see*entity*with*memory*count
               ^io <io>)
    (<io> ^input-link <il>)
    (<io> ^output-link <ol>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^MEMORY <memory>)
    (<memory> ^COUNT <quantity>)   
    (<o> ^name seeEntityWithMemoryCount)
@@ -108,7 +108,7 @@ sp {apply*see*entity*with*memory*count
 # Propose*see*entity*without*memory*count:
 sp {propose*see*entity*without*memory*count
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
    (<entity> ^TYPE <type> << JEWEL FOOD >>)
    (<entity> ^X <x>)
@@ -135,7 +135,7 @@ sp {apply*see*entity*without*memory*count
               ^io <io>)
    (<io> ^input-link <il>)
    (<io> ^output-link <ol>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^MEMORY <memory>)  
    (<o> ^name seeEntityWithoutMemoryCount)
    (<o> ^parameterEntity <newEntity>)
@@ -160,7 +160,7 @@ sp {apply*see*entity*without*memory*count
 # Propose*move*food:
 sp {propose*move*food
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<creature> ^POSITION <creaturePosition>)
@@ -193,7 +193,7 @@ sp {apply*move*food
    (<food> ^X <x>)
    (<food> ^Y <y>)
    (<food> ^NAME <entityInMemoryName>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
@@ -214,7 +214,7 @@ sp {apply*moveFood*remove*food
 (<o> ^parameter <food>)
 (<food> ^X <x>)
 (<food> ^Y <y>)
-(<il> ^CREATURE <creature>)
+(<s> ^CREATURE <creature>)
 (<creature> ^MEMORY <memory>)
 (<memory> ^ENTITY <entityInMemory>) 
 (<memory> ^COUNT <quantity>)
@@ -233,7 +233,7 @@ sp {apply*moveFood*remove*food
 # Propose*eat*food:
 sp {propose*eat*food
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
    (<entity> ^TYPE FOOD) 
    (<entity> ^DISTANCE <foodDistance> < 30)
@@ -255,7 +255,7 @@ sp {apply*eat*food
    (<io> ^output-link <ol>)
    (<o> ^name eatFood)
    (<o> ^parameter.NAME <foodName>)
-   (<il> ^CREATURE <creature>) 
+   (<s> ^CREATURE <creature>) 
    (<creature> ^MEMORY <memory>)
    (<memory> ^COUNT <quantity>)  
    (<memory> ^ENTITY <memoryEntity>)
@@ -275,7 +275,7 @@ sp {apply*eat*food
 # Propose*move*jewel:
 sp {propose*move*jewel
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<creature> ^POSITION <creaturePosition>)
@@ -308,7 +308,7 @@ sp {apply*move*jewel
    (<jewel> ^X <x>)
    (<jewel> ^Y <y>)
    (<jewel> ^NAME <entityInMemoryName>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^MEMORY <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
@@ -329,7 +329,7 @@ sp {apply*moveJewel*remove*jewel
 (<o> ^parameter <jewel>)
 (<jewel> ^X <x>)
 (<jewel> ^Y <y>)
-(<il> ^CREATURE <creature>)
+(<s> ^CREATURE <creature>)
 (<creature> ^MEMORY <memory>)
 (<memory> ^ENTITY <entityInMemory>) 
 (<memory> ^COUNT <quantity>)
@@ -348,7 +348,7 @@ sp {apply*moveJewel*remove*jewel
 # Propose*get*jewel:
 sp {propose*get*jewel
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
    (<entity> ^TYPE JEWEL) 
    (<entity> ^DISTANCE <jewelDistance> < 30)
@@ -370,7 +370,7 @@ sp {apply*get*jewel
    (<io> ^output-link <ol>)
    (<o> ^name getJewel)
    (<o> ^parameter.NAME <jewelName>)
-   (<il> ^CREATURE <creature>) 
+   (<s> ^CREATURE <creature>) 
    (<creature> ^MEMORY <memory>)
    (<memory> ^COUNT <quantity>)  
    (<memory> ^ENTITY <memoryEntity>)
@@ -390,7 +390,7 @@ sp {apply*get*jewel
 # Propose*avoid*brick:
 sp {propose*avoidBrick
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
    (<entity> ^TYPE BRICK)
    (<entity> ^DISTANCE <distance> <= 61)      
@@ -420,7 +420,7 @@ sp {apply*avoidBrick*remove*entity*memory
            ^io.input-link <il>)
 (<o> ^name avoidBrick)
 (<o> ^entityName <entityName>)
-(<il> ^CREATURE <creature>)
+(<s> ^CREATURE <creature>)
 (<creature> ^MEMORY <memory>)
 (<memory> ^COUNT <quantity>)
 (<memory> ^ENTITY <entityInMemory>)           
@@ -497,7 +497,7 @@ sp {moveJewel*moveJewel*less*distance
            ^item <o> {<> <o> <o2>}
            ^superstate <ss>)
 (<ss> ^io.input-link <il>)
-(<il> ^CREATURE <creature>)                 
+(<ss> ^CREATURE <creature>)                 
 (<o> ^name moveJewel)
 (<o2> ^name moveJewel)
 (<o2> ^parameter.distance <distance2>)
@@ -576,7 +576,7 @@ sp {moveFood*moveJewel*preferences*moveFoodWins
 (<o> ^name moveFood)
 (<o> ^parameterFuel <threshold>)
 (<o2> ^name moveJewel)
-(<il> ^CREATURE.SENSOR.FUEL <fuel>)
+(<ss> ^CREATURE.SENSOR.FUEL <fuel>)
 (<fuel> ^VALUE <value> <= <threshold>)        
 -->
 (<ss> ^operator <o> > <o2>)} 
@@ -591,7 +591,7 @@ sp {moveFood*moveJewel*preferences*moveJewelWins
 (<o> ^name moveFood)
 (<o> ^parameterFuel <threshold>)
 (<o2> ^name moveJewel)
-(<il> ^CREATURE.SENSOR.FUEL <fuel>)
+(<ss> ^CREATURE.SENSOR.FUEL <fuel>)
 (<fuel> ^VALUE <value> > <threshold>)        
 -->
 (<ss> ^operator <o2> > <o>)} 
@@ -625,7 +625,7 @@ sp {avoidBrick*moveJewel*moveFood*preferences
 (<o2> ^parameter <entity>)
 (<entity> ^NAME <entityName>)
 (<ss> ^io.input-link <il>)
-(<il> ^CREATURE <creature>)
+(<ss> ^CREATURE <creature>)
 (<creature> ^MEMORY <memory>)
 (<memory> ^ENTITY <entityInMemory>)
 (<entityInMemory> ^NAME <entityName>)
@@ -642,3 +642,10 @@ sp {wander*preferences
 -->
 (<s> ^operator <o> <)}
 
+sp {halt*condition
+  (state <s> ^impasse no-change ^type state -^operator ^attribute operator)
+-->
+  #(write I2)
+  #(halt)
+  (interrupt)
+}       
