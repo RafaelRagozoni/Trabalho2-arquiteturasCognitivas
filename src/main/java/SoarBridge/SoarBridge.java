@@ -39,9 +39,7 @@ import java.util.Iterator;
  */
 public class SoarBridge
 {
-    //lista de leaflets
-    List<Integer> values = new ArrayList<>();
-
+    
     // Log Variable
     Logger logger = Logger.getLogger(SoarBridge.class.getName());
 
@@ -70,9 +68,6 @@ public class SoarBridge
      */
     public SoarBridge(Environment _e, String path, Boolean startSOARDebugger) 
     {
-        values.add(0);
-        values.add(1);
-        values.add(2);
         env = _e;
         c = env.getCreature();
         try
@@ -163,15 +158,13 @@ public class SoarBridge
               Identifier creatureLeafletsLeafletMissing = CreateIdWME(creatureLeaflets,"JEWELS");
               HashMap<String, Integer> accumulatedResults = new HashMap<>();
                 
-            //   for (int i = 0; i<=2; i++){
-              for (int i : values){
+              for (int i = 0; i<=2; i++){
 
                 if (c.getLeaflets().get(i).isCompleted()) {
                     // leaftletToDeliverId = String.valueOf(c.getLeaflets().get(i).getID());
                     System.out.println("completou o leaflet");
                     System.out.println(String.valueOf(c.getLeaflets().get(i).getID()));
                     c.deliverLeaflet(String.valueOf(c.getLeaflets().get(i).getID()));
-                    values.remove(i);
                     continue;
                 }
                 Identifier creatureLeafletsLeaflet = CreateIdWME(creatureLeaflets,"LEAFLET");
