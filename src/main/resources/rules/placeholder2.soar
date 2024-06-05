@@ -13,23 +13,23 @@ sp {clone-creature
    }
 
 ###################################  DELIVERY  ###################################
-# This operator will make the agent delivery the leaflet when is completed
 # Propose*delivery:
-sp {propose*delivery
-   (state <s> ^io.input-link <il>)
-   (<s> ^CREATURE <creature>)
-   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
-   (<leaflet> ^SITUATION <situation> > 0)
-   (<leaflet> ^ID <leafletID>)
--->
-   (halt)
-   (<s> ^operator <o> +)
-   (<o> ^name delivery)
-   (<o> ^leafletID <leafletID>)}
+# This operator will make the agent delivery the leaflet when is completed
+# sp {propose*delivery
+#    (state <s> ^io.input-link <il>)
+#    (<s> ^CREATURE <creature>)
+#    (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+#    (<leaflet> ^SITUATION <situation> > 0)
+#    (<leaflet> ^ID <leafletID>)
+# -->
+#    # (halt)
+#    (<s> ^operator <o> + >)
+#    (<o> ^name delivery)
+#    (<o> ^leafletID <leafletID>)}
    
-# Apply*delivery:
-# If the move operator is selected, then generate an output command to it 
-# sp {apply*delivery*jewel
+# # Apply*delivery:
+# # If the delivery operator is selected, then generate an output command to it 
+# sp {apply*delivery
 #    (state <s> ^operator <o>
 #               ^io <io>)
 #    (<io> ^input-link <il>)      
@@ -44,23 +44,6 @@ sp {propose*delivery
 #    (<ol> ^DELIVERY <command>)
 #    (<command> ^Name <leafletID>)
 # }
-   
-# Apply*wander:
-# If the wander operator is selected, then generate an output command to it 
-sp {apply*wander
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^output-link <ol>)
-   (<o> ^name wander)
-   -(<ol> ^MOVE <anywhere>)
-   -(<ol> ^GET <anything>)
-   -(<ol> ^EAT <something>)
--->
-   (<ol> ^MOVE <command>)
-   (<command> ^Vel 0)
-   (<command> ^VelR 2)
-   (<command> ^VelL 0)
-}
 
 ###################################  WANDER  ###################################
 # This operator will make the agent to walk ahead at the enviroment
@@ -249,8 +232,8 @@ sp {apply*move*food
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel 3)
-   (<command> ^VelR 1)
-   (<command> ^VelL 1)
+   (<command> ^VelR 3)
+   (<command> ^VelL 3)
    (<command> ^X <x>)
    (<command> ^Y <y>)
 }
@@ -402,8 +385,8 @@ sp {apply*move*jewel
 -->
    (<ol> ^MOVE <command>)
    (<command> ^Vel 3)
-   (<command> ^VelR 1)
-   (<command> ^VelL 1)
+   (<command> ^VelR 3)
+   (<command> ^VelL 3)
    (<command> ^X <x>)
    (<command> ^Y <y>)
 }
@@ -763,20 +746,20 @@ sp {wander*preferences
 -->
 (<s> ^operator <o> <)}
 
-sp {halt*condition
-  (state <s> ^impasse no-change ^type state -^operator ^attribute operator)
--->
-  #(write I2)
-  #(halt)
-  (interrupt)
-}       
-
-sp {complete*condition
-  (state <s> ^io.input-link <il>)
-  (<il> ^CREATURE.LEAFLETS <leaflets>)
-  -(<leaflets> ^LEAFLET <leaflet>)
--->
-  #(write I2)
-  (halt)
+# sp {halt*condition
+#   (state <s> ^impasse no-change ^type state -^operator ^attribute operator)
+# -->
+#   #(write I2)
+#   #(halt)
 #   (interrupt)
-}       
+# }       
+
+# sp {complete*condition
+#   (state <s> ^io.input-link <il>)
+#   (<il> ^CREATURE.LEAFLETS <leaflets>)
+#   -(<leaflets> ^JEWELS <jewel>)
+# -->
+# #   (write I2)
+# #   (halt)
+# #   (interrupt)
+# }       

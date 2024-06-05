@@ -158,11 +158,19 @@ public class SoarBridge
               HashMap<String, Integer> accumulatedResults = new HashMap<>();
                 
               for (int i = 0; i<=2; i++){
-                
-                if (c.getLeaflets().get(i).isCompleted()) {
-                    System.out.println(c.getLeaflets().get(i).isCompleted());
+
+                if (c.getLeaflets().get(i).getSituation()>0 || c.getLeaflets().get(i).isCompleted()) {
+                    // leaftletToDeliverId = String.valueOf(c.getLeaflets().get(i).getID());
+                    System.out.println("completou o leaflet");
+                    System.out.println(String.valueOf(c.getLeaflets().get(i).getID()));
+                    c.deliverLeaflet(String.valueOf(c.getLeaflets().get(i).getID()));
                     continue;
                 }
+                Identifier creatureLeafletsLeaflet = CreateIdWME(creatureLeaflets,"LEAFLET");
+                CreateFloatWME(creatureLeafletsLeaflet, "ID",c.getLeaflets().get(i).getID());
+                CreateFloatWME(creatureLeafletsLeaflet, "PAYMENT",c.getLeaflets().get(i).getPayment());
+                CreateFloatWME(creatureLeafletsLeaflet, "SITUATION",c.getLeaflets().get(i).getSituation());
+                
                 
                 HashMap<String, Integer> result = c.getLeaflets().get(i).getWhatToCollect();
                 
@@ -172,10 +180,6 @@ public class SoarBridge
                   accumulatedResults.put(key, accumulatedResults.getOrDefault(key, 0) + value);
                 }
 
-                Identifier creatureLeafletsLeaflet = CreateIdWME(creatureLeaflets,"LEAFLET");
-                CreateFloatWME(creatureLeafletsLeaflet, "ID",c.getLeaflets().get(i).getID());
-                CreateFloatWME(creatureLeafletsLeaflet, "PAYMENT",c.getLeaflets().get(i).getPayment());
-                CreateFloatWME(creatureLeafletsLeaflet, "SITUATION",c.getLeaflets().get(i).getSituation());
               }
               
               for (Map.Entry<String, Integer> entry : accumulatedResults.entrySet()) {
@@ -305,31 +309,10 @@ public class SoarBridge
             {
                 List<Wme> Commands = Wmes.matcher(agent).filter(agent.getInputOutput().getOutputLink());
                 // printOutputWMEs();
-                // Wme com = Commands.get(0);
-                // Identifier commandId = com.getValue().asIdentifier();
-                // if (commandId != null){
-                //     String commandName = com.getAttribute().toString();
-                //     System.out.println(commandName);
-                // }
-
-                // String comName = com.getAttribute().asString().getValue();
-                // Command.CommandType comCommandType = Enum.valueOf(Command.CommandType.class, comName);
-                // System.out.println(comCommandType);
-                // Command comCommand = null;
-
                 for (Wme com : Commands)
                 {
-                // for (int i=0 ; i<2 ; i++)
-                // {
-                    // if (true){
-                    //     continue;
-                    // }
                     String name  = com.getAttribute().asString().getValue();
-                    // System.out.println("name");
-                    // System.out.println(name);
                     Command.CommandType commandType = Enum.valueOf(Command.CommandType.class, name);
-                    // System.out.println("commandType");
-                    // System.out.println(commandType);
                     Command command = null;
 
                     switch(commandType)
@@ -388,6 +371,18 @@ public class SoarBridge
                             {
                                 thingNameToEat = GetParameterValue("Name");
                                 if (thingNameToEat != null) commandEat.setThingName(thingNameToEat);
+                                commandList.add(command);
+                            }
+                            break;
+
+                        case DELIVERY:
+                            String thingNameToDeliver = null;
+                            command = new Command(Command.CommandType.DELIVERY);
+                            CommandDelivery commandDelivery = (CommandDelivery)command.getCommandArgument();
+                            if (commandDelivery != null)
+                            {
+                                thingNameToDeliver = GetParameterValue("Name");
+                                if (thingNameToDeliver != null) commandDelivery.setThingName(thingNameToDeliver);
                                 commandList.add(command);
                             }
                             break;
@@ -479,6 +474,10 @@ public class SoarBridge
                         processEatCommand((CommandEat)command.getCommandArgument());
                     break;
 
+                    case DELIVERY:
+                        processDeliveryCommand((CommandDelivery)command.getCommandArgument());
+                    break;
+
                     default:System.out.println("Nenhum comando definido ...");
                         // Do nothing
                     break;
@@ -508,6 +507,28 @@ public class SoarBridge
         else
         {
             logger.severe("Error processing processMoveCommand");
+        }
+    }
+
+    /**
+     * Send Get Command to World Server
+     * @param soarCommandDelivery Soar Get Command Structure
+     */
+    private void processDeliveryCommand(CommandDelivery soarCommandDelivery) throws CommandExecException
+    {
+        if (soarCommandDelivery != null)
+        {
+            System.out.println(soarCommandDelivery.getThingName());
+            try{
+                c.deliverLeaflet(soarCommandDelivery.getThingName());
+            }
+            catch(Exception e) {
+                System.out.println(e);
+            }
+        }
+        else
+        {
+            logger.severe("Error processing processDeliveryCommand");
         }
     }
 

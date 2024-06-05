@@ -29,10 +29,8 @@ public class Main
         SilenceLoggers();
         try
         {
-            // NativeUtils.loadFileFromJar("/rules/soar-rules.soar");
-            // String soarRulesPath = "soar-rules.soar";
-            NativeUtils.loadFileFromJar("/rules/placeholder.soar");
-            String soarRulesPath = "placeholder.soar";
+            NativeUtils.loadFileFromJar("/rules/placeholder2.soar");
+            String soarRulesPath = "placeholder2.soar";
             //Start enviroment data
             Environment e = new Environment(Boolean.FALSE);
             SoarBridge soarBridge = new SoarBridge(e,soarRulesPath,true);

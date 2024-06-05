@@ -1,3 +1,0 @@
-pushd 3-modes
-source 3-modes_source.soar
-popd

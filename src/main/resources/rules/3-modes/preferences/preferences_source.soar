@@ -1,4 +1,0 @@
-source elaborations.soar
-source eat-mode_x_memory.soar
-source greed-mode_x_memory.soar
-source move-food-distance.soar

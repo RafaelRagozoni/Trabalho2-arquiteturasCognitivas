@@ -1,7 +1,0 @@
-sp {eat-it*seeEntityWithoutMemoryCount*preferences
-(state <s> ^operator <o> + 
-                     <o2> +)
-(<o> ^name seeEntityWithoutMemoryCount)
-(<o2> ^name eat-it)
--->
-(<s> ^operator <o> > <o2>)}
