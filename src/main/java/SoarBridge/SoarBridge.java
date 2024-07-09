@@ -132,6 +132,9 @@ public class SoarBridge
             case Constants.categoryCREATURE:
                 itemType = "CREATURE";
                 break;
+            case Constants.categoryDeliverySPOT:
+                itemType = "DELIVERY";
+                break;
         }
         return itemType;
     }
@@ -160,13 +163,12 @@ public class SoarBridge
                 
               for (int i = 0; i<=2; i++){
 
-                if (c.getLeaflets().get(i).isCompleted()) {
-                    // leaftletToDeliverId = String.valueOf(c.getLeaflets().get(i).getID());
-                    System.out.println("completou o leaflet");
-                    System.out.println(String.valueOf(c.getLeaflets().get(i).getID()));
-                    c.deliverLeaflet(String.valueOf(c.getLeaflets().get(i).getID()));
-                    continue;
-                }
+                // if (c.getLeaflets().get(i).isCompleted()) {
+                //     System.out.println("completou o leaflet");
+                //     System.out.println(String.valueOf(c.getLeaflets().get(i).getID()));
+                //     c.deliverLeaflet(String.valueOf(c.getLeaflets().get(i).getID()));
+                //     continue;
+                // }
                 Identifier creatureLeafletsLeaflet = CreateIdWME(creatureLeaflets,"LEAFLET");
                 CreateFloatWME(creatureLeafletsLeaflet, "ID",c.getLeaflets().get(i).getID());
                 CreateFloatWME(creatureLeafletsLeaflet, "PAYMENT",c.getLeaflets().get(i).getPayment());
@@ -378,12 +380,14 @@ public class SoarBridge
                             break;
 
                         case DELIVERY:
+                            System.out.println("teste123teste123teste123teste123teste123");
                             String thingNameToDeliver = null;
                             command = new Command(Command.CommandType.DELIVERY);
                             CommandDelivery commandDelivery = (CommandDelivery)command.getCommandArgument();
                             if (commandDelivery != null)
                             {
                                 thingNameToDeliver = GetParameterValue("Name");
+                                System.out.println(thingNameToDeliver);
                                 if (thingNameToDeliver != null) commandDelivery.setThingName(thingNameToDeliver);
                                 commandList.add(command);
                             }
@@ -519,10 +523,9 @@ public class SoarBridge
     private void processDeliveryCommand(CommandDelivery soarCommandDelivery) throws CommandExecException
     {
         if (soarCommandDelivery != null)
-        {
-            System.out.println(soarCommandDelivery.getThingName());
+        {   
             try{
-                c.deliverLeaflet(soarCommandDelivery.getThingName());
+                c.deliverLeaflet(soarCommandDelivery.getThingName().replaceAll("\\.0$", ""));
             }
             catch(Exception e) {
                 System.out.println(e);

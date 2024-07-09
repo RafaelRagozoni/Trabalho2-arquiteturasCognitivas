@@ -40,6 +40,133 @@ sp {send*plan
     (<ol> ^<action> <a>)
     # (halt)
 }
+################################### GO DELIVER  ###################################
+# Propose*move*deliver:
+# sp {propose*move*deliver
+#    (state <s> ^io.input-link <il>)
+#    (<s> ^CREATURE <creature>)
+#    (<creature> ^SENSOR.VISUAL <memory>)
+#    (<memory> ^ENTITY <entityInMemory>)
+#    (<creature> ^POSITION <creaturePosition>)
+#    (<creaturePosition> ^X <creaturePositionX>)
+#    (<creaturePosition> ^Y <creaturePositionY>)
+
+#    (<entityInMemory> ^TYPE DELIVERY)
+#    (<entityInMemory> ^X <entityInMemoryPositionX>)
+#    (<entityInMemory> ^Y <entityInMemoryPositionY>)
+
+#    (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+#    (<leaflet> ^SITUATION 1.0) 
+#    (<leaflet> ^ID <leafletId>)
+
+# -->
+#    (<s> ^operator <o> +)
+#    (<o> ^name moveDeliver)
+#    (<o> ^parameter <food>)
+#    (<food> ^X <entityInMemoryPositionX>)
+#    (<food> ^Y <entityInMemoryPositionY>)
+#    (<food> ^ID <leafletId>)
+#    }
+   
+# # Apply*move*deliver:
+# # If the move operator is selected, then generate an output command to it 
+# sp {apply*move*deliver
+#    (state <s> ^operator <o>
+#               ^io <io>)
+#    (<io> ^input-link <il>)             
+#    (<io> ^output-link <ol>)
+
+#    (<o> ^name moveDeliver)
+#    (<o> ^parameter <food>)
+#    (<food> ^X <x>)
+#    (<food> ^Y <y>)
+
+#    (<s> ^CREATURE <creature>)
+#    (<ol> ^plan <p>)
+#    (<p> ^step <stepNumber>)
+# -->
+#    (<p> ^step <stepNumber> -)
+#    (<p> ^step (+ <stepNumber> 1))
+#    (<p> ^<stepNumber> <cm>)
+#    (<cm> ^MOVE <command>)
+#    (<command> ^Vel 3)
+#    (<command> ^VelR 3)
+#    (<command> ^VelL 3)
+#    (<command> ^X <x>)
+#    (<command> ^Y <y>)
+# }
+
+# # # Apply*move*deliver*position:
+# # # If the move operator is selected, then generate an output command to it 
+# sp {apply*move*deliver*position*update
+#    (state <s> ^operator <o>
+#               ^io <io>)
+#    (<io> ^input-link <il>)             
+#    (<io> ^output-link <ol>)
+
+#    (<o> ^name moveDeliver)
+#    (<o> ^parameter <food>)
+#    (<food> ^X <x>)
+#    (<food> ^Y <y>)
+#    (<food> ^ID <leafletId>)
+
+#    (<s> ^CREATURE <creature>)
+#    (<creature> ^POSITION <creaturePosition>)
+#    (<creaturePosition> ^X <creatureX>)
+#    (<creaturePosition> ^Y <creatureY>)
+
+#    (<creature> ^LEAFLETS <leaflets>)
+#    (<leaflets> ^LEAFLET <leaflet>)
+#    (<leaflet> ^ID <leafletId>)
+# -->
+#    (<creaturePosition> ^X <creatureX> -)
+#    (<creaturePosition> ^Y <creatureY> -)
+#    (<creaturePosition> ^X <x>)
+#    (<creaturePosition> ^Y <y>)
+#    (<leaflets> ^LEAFLET <leaflet> -)
+# }
+
+################################### DELIVER  ###################################
+# Propose*deliver*leaflet:
+sp {propose*deliver*leaflet
+   (state <s> ^io.input-link <il>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
+   (<creature> ^POSITION <creaturePosition>)
+
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION 1.0) 
+   (<leaflet> ^ID <leafletId>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name deliverLeaflet)
+   (<o> ^ID <leafletId>)
+   }
+   
+# Apply*deliver*leaflet:
+# If the move operator is selected, then generate an output command to it 
+sp {apply*move*deliver
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+
+   (<o> ^name deliverLeaflet)
+   (<o> ^ID <leafletId>)
+
+   (<s> ^CREATURE <creature>)
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
+-->
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^DELIVERY <command>)
+   (<command> ^Name <leafletId>)
+   (<s> ^send 1)
+   # (interrupt)
+}
+
 
 ###################################  WANDER  ###################################
 # This operator will make the agent to walk ahead at the enviroment
@@ -482,8 +609,50 @@ sp {moveFood*moveJewel*preferences*moveJewelWins
 -->
 (<ss> ^operator <o2> > <o>)} 
 
+# Move Jewel vs Move Deliver Preferences - Move Deliver Wins
+sp {moveFood*moveJewel*preferences*moveJewelWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name moveJewel)
+(<o2> ^name moveDeliver)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+# Deliver vs Move Deliver Preferences - Deliver Wins
+sp {moveFood*moveJewel*preferences*moveJewelWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name moveDeliver)
+(<o2> ^name deliver)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {deliver*deliver*preferences*HigherPaymentWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name deliverLeaflet)
+(<o2> ^name deliverLeaflet)
+-->
+(<ss> ^operator <o2> > <o>)} 
 
 
+sp {stop*to*send
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^operator <o>
+           ^superstate <ss>
+           ^send 1)
+-->
+(<s> ^operator <o> -)} 
 
 # WANDER
 
