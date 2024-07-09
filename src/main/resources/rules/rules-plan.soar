@@ -165,14 +165,19 @@ sp {apply*deliver*leaflet
    (<s> ^CREATURE <creature>)
    (<ol> ^plan <p>)
    (<p> ^step <stepNumber>)
+
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION <sit>) 
+   (<leaflet> ^ID <leafletId>)
 -->
    (<p> ^step <stepNumber> -)
    (<p> ^step (+ <stepNumber> 1))
    (<p> ^<stepNumber> <cm>)
    (<cm> ^DELIVERY <command>)
    (<command> ^Name <leafletId>)
+   (<leaflet> ^SITUATION <sit> -)
+   (<leaflet> ^SITUATION 0.0)
    (<s> ^send 1)
-   # (interrupt)
 }
 
 
