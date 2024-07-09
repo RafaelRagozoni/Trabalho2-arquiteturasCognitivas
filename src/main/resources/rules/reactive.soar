@@ -12,34 +12,7 @@ sp {clone-creature
    (<s> ^CREATURE (deep-copy <creature>))
    }
 
-###################################  PLAN  ###################################
-sp {propose*plan
-   (state <s> ^io.output-link <ol>)
-   -(<ol> ^plan <p>)
--->
-   (<s> ^operator <o> + >)
-   (<o> ^name create-plan)
-}
 
-sp {apply*plan
-   (state <s> ^operator <o>)
-   (<s> ^io.output-link <ol>)
-   (<o> ^name create-plan)
--->
-   (<ol> ^plan <p>)
-   (<p> ^step 0)
-}
-
-sp {send*plan
-    (state <s> ^io.output-link <ol>)
-    (<s> ^send 1)
-    (<ol> ^plan <plan>)
-    (<plan> ^0 <command>)
-    (<command> ^<action> <a>)
--->
-    (<ol> ^<action> <a>)
-    # (halt)
-}
 ################################### GO DELIVER  ###################################
 # # # Propose*move*deliver:
 sp {propose*move*deliver
@@ -83,18 +56,14 @@ sp {apply*move*deliver
    (<food> ^Y <y>)
 
    (<s> ^CREATURE <creature>)
-   (<ol> ^plan <p>)
-   (<p> ^step <stepNumber>)
 -->
-   (<p> ^step <stepNumber> -)
-   (<p> ^step (+ <stepNumber> 1))
-   (<p> ^<stepNumber> <cm>)
-   (<cm> ^MOVE <command>)
+   (<ol> ^MOVE <command>)
    (<command> ^Vel 3)
    (<command> ^VelR 3)
    (<command> ^VelL 3)
    (<command> ^X <x>)
    (<command> ^Y <y>)
+   (interrupt)
 }
 
 # # Apply*move*deliver*position:
@@ -163,21 +132,18 @@ sp {apply*deliver*leaflet
    (<o> ^ID <leafletId>)
 
    (<s> ^CREATURE <creature>)
-   (<ol> ^plan <p>)
-   (<p> ^step <stepNumber>)
+
 
    (<creature> ^LEAFLETS.LEAFLET <leaflet>)
    (<leaflet> ^SITUATION <sit>) 
    (<leaflet> ^ID <leafletId>)
 -->
-   (<p> ^step <stepNumber> -)
-   (<p> ^step (+ <stepNumber> 1))
-   (<p> ^<stepNumber> <cm>)
-   (<cm> ^DELIVERY <command>)
+   (<ol> ^DELIVERY <command>)
    (<command> ^Name <leafletId>)
    (<leaflet> ^SITUATION <sit> -)
    (<leaflet> ^SITUATION 0.0)
    (<s> ^send 1)
+   (interrupt)
 }
 
 
@@ -201,19 +167,13 @@ sp {apply*wander
               ^io <io>)
    (<io> ^output-link <ol>)
    (<o> ^name wander)
-   # -(<ol> ^MOVE <anywhere>)
-   (<ol> ^plan <p>)
-   (<p> ^step <stepNumber>)
-   -(<s> ^send 1)
 -->
-   (<p> ^step <stepNumber> -)
-   (<p> ^step (+ <stepNumber> 1))
-   (<p> ^<stepNumber> <cm>)
-   (<cm> ^MOVE <command>)
+   (<ol> ^MOVE <command>)
    (<s> ^send 1)
    (<command> ^Vel 0)
    (<command> ^VelR 2)
    (<command> ^VelL 0)
+   (interrupt)
 }
     
 ##############################  MOVE FOOD  #####################################
@@ -264,19 +224,14 @@ sp {apply*move*food
    (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
-   # -(<ol> ^EAT <something>)
-    (<ol> ^plan <p>)
-   (<p> ^step <stepNumber>)
 -->
-   (<p> ^step <stepNumber> -)
-   (<p> ^step (+ <stepNumber> 1))
-   (<p> ^<stepNumber> <cm>)
-   (<cm> ^MOVE <command>)
+   (<ol> ^MOVE <command>)
    (<command> ^Vel 3)
    (<command> ^VelR 3)
    (<command> ^VelL 3)
    (<command> ^X <x>)
    (<command> ^Y <y>)
+   (interrupt)
 }
 
 #Remove the food from memory because it is not there anymore 
@@ -349,15 +304,11 @@ sp {apply*eat*food
    (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <foodName>)
-   (<ol> ^plan <p>)
-   (<p> ^step <stepNumber>)
 -->
-   (<p> ^step <stepNumber> -)
-   (<p> ^step (+ <stepNumber> 1))
-   (<p> ^<stepNumber> <cm>)
-   (<cm> ^EAT <command>)
+   (<ol> ^EAT <command>)
    (<command> ^Name <foodName>)
    (<memory> ^ENTITY <memoryEntity> -)
+   (interrupt)
 }
 
 #############################  MOVE JEWEL  #####################################
@@ -417,15 +368,8 @@ sp {apply*move*jewel
    (<entityInMemory> ^DISTANCE <entityInMemoryDistance>)
    (<position> ^X <creatureX>)
    (<position> ^Y <creatureY>)
-
-   (<ol> ^plan <p>)
-   (<p> ^step <stepNumber>)
 -->
-   (<p> ^step <stepNumber> -)
-   (<p> ^step (+ <stepNumber> 1))
-   (<p> ^<stepNumber> <cm>)
-   (<cm> ^MOVE <command>)   
-
+   (<ol> ^MOVE <command>)   
    (<position> ^X <creatureX> -)
    (<position> ^Y <creatureY> -)
    (<position> ^X <x>)
@@ -438,6 +382,7 @@ sp {apply*move*jewel
    (<command> ^VelL 3)
    (<command> ^X <x>)
    (<command> ^Y <y>)
+   (interrupt)
 }
 
 ##############################  GET JEWEL  #####################################
@@ -472,17 +417,11 @@ sp {apply*get*jewel
    (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <jewelName>)
-
-   (<ol> ^plan <p>)
-   (<p> ^step <stepNumber>)
 -->
-   (<p> ^step <stepNumber> -)
-   (<p> ^step (+ <stepNumber> 1))
-   (<p> ^<stepNumber> <cm>)
-   (<cm> ^GET <command>)
+   (<ol> ^GET <command>)
    (<command> ^Name <jewelName>)
    (<memory> ^ENTITY <memoryEntity> -)
-
+   (interrupt)
 }
   
             
@@ -682,25 +621,14 @@ sp {wander*preferences
 -->
 (<s> ^operator <o> <)}
 
-sp {halt*condition
-  (state <s> ^impasse no-change ^superstate <ss>)
-  (<ss> ^io.output-link <ol>)
-  (<ol> ^plan <plan>)
-  (<plan> ^0 <command>)
-  (<command> ^<action> <a>)
--->
-  (<ss> ^send 1)
-  }      
-
 
 sp {worst*case
     (state <s> ^impasse no-change ^superstate <ss>)
     (<ss> ^io.output-link <ol>)
-    (<ol> ^plan <plan>)
-    -(<plan> ^0 <command>)
 -->
     (<ol> ^MOVE <command>)
     (<command> ^Vel 0)
     (<command> ^VelR 2)
     (<command> ^VelL 0)
+    (interrupt)
 } 

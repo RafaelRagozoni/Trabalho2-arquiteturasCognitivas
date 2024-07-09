@@ -29,10 +29,10 @@ public class Main
         SilenceLoggers();
         try
         {
-            NativeUtils.loadFileFromJar("/rules/rules-plan.soar");
-            String soarRulesPath = "rules-plan.soar";
-            // NativeUtils.loadFileFromJar("/rules/reactive.soar");
-            // String soarRulesPath = "reactive.soar";
+            // NativeUtils.loadFileFromJar("/rules/rules-plan.soar");
+            // String soarRulesPath = "rules-plan.soar";
+            NativeUtils.loadFileFromJar("/rules/reactive.soar");
+            String soarRulesPath = "reactive.soar";
          
             //Start enviroment data
             Environment e = new Environment(Boolean.FALSE);
