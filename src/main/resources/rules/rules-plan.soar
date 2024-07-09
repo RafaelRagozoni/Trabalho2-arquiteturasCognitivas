@@ -41,90 +41,92 @@ sp {send*plan
     # (halt)
 }
 ################################### GO DELIVER  ###################################
-# Propose*move*deliver:
-# sp {propose*move*deliver
-#    (state <s> ^io.input-link <il>)
-#    (<s> ^CREATURE <creature>)
-#    (<creature> ^SENSOR.VISUAL <memory>)
-#    (<memory> ^ENTITY <entityInMemory>)
-#    (<creature> ^POSITION <creaturePosition>)
-#    (<creaturePosition> ^X <creaturePositionX>)
-#    (<creaturePosition> ^Y <creaturePositionY>)
+# # # Propose*move*deliver:
+sp {propose*move*deliver
+   (state <s> ^io.input-link <il>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
+   (<memory> ^ENTITY <entityInMemory>)
+   (<creature> ^POSITION <creaturePosition>)
+   (<creaturePosition> ^X <creaturePositionX>)
+   (<creaturePosition> ^Y <creaturePositionY>)
 
-#    (<entityInMemory> ^TYPE DELIVERY)
-#    (<entityInMemory> ^X <entityInMemoryPositionX>)
-#    (<entityInMemory> ^Y <entityInMemoryPositionY>)
+   (<entityInMemory> ^TYPE DELIVERY)
+   (<entityInMemory> ^X <entityInMemoryPositionX>)
+   (<entityInMemory> ^Y <entityInMemoryPositionY>)
+   (<entityInMemory> ^DISTANCE <distance> > 30)
 
-#    (<creature> ^LEAFLETS.LEAFLET <leaflet>)
-#    (<leaflet> ^SITUATION 1.0) 
-#    (<leaflet> ^ID <leafletId>)
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION 1.0) 
+   (<leaflet> ^ID <leafletId>)
 
-# -->
-#    (<s> ^operator <o> +)
-#    (<o> ^name moveDeliver)
-#    (<o> ^parameter <food>)
-#    (<food> ^X <entityInMemoryPositionX>)
-#    (<food> ^Y <entityInMemoryPositionY>)
-#    (<food> ^ID <leafletId>)
-#    }
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name moveDeliver)
+   (<o> ^parameter <food>)
+   (<food> ^X <entityInMemoryPositionX>)
+   (<food> ^Y <entityInMemoryPositionY>)
+   (<food> ^ID <leafletId>)
+   }
    
-# # Apply*move*deliver:
+# Apply*move*deliver:
+# If the move operator is selected, then generate an output command to it 
+sp {apply*move*deliver
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+
+   (<o> ^name moveDeliver)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+
+   (<s> ^CREATURE <creature>)
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
+-->
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^MOVE <command>)
+   (<command> ^Vel 3)
+   (<command> ^VelR 3)
+   (<command> ^VelL 3)
+   (<command> ^X <x>)
+   (<command> ^Y <y>)
+}
+
+# # Apply*move*deliver*position:
 # # If the move operator is selected, then generate an output command to it 
-# sp {apply*move*deliver
-#    (state <s> ^operator <o>
-#               ^io <io>)
-#    (<io> ^input-link <il>)             
-#    (<io> ^output-link <ol>)
+sp {apply*move*deliver*position*update
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
 
-#    (<o> ^name moveDeliver)
-#    (<o> ^parameter <food>)
-#    (<food> ^X <x>)
-#    (<food> ^Y <y>)
+   (<o> ^name moveDeliver)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+   (<food> ^ID <leafletId>)
 
-#    (<s> ^CREATURE <creature>)
-#    (<ol> ^plan <p>)
-#    (<p> ^step <stepNumber>)
-# -->
-#    (<p> ^step <stepNumber> -)
-#    (<p> ^step (+ <stepNumber> 1))
-#    (<p> ^<stepNumber> <cm>)
-#    (<cm> ^MOVE <command>)
-#    (<command> ^Vel 3)
-#    (<command> ^VelR 3)
-#    (<command> ^VelL 3)
-#    (<command> ^X <x>)
-#    (<command> ^Y <y>)
-# }
+   (<s> ^CREATURE <creature>)
+   (<creature> ^POSITION <creaturePosition>)
+   (<creaturePosition> ^X <creatureX>)
+   (<creaturePosition> ^Y <creatureY>)
 
-# # # Apply*move*deliver*position:
-# # # If the move operator is selected, then generate an output command to it 
-# sp {apply*move*deliver*position*update
-#    (state <s> ^operator <o>
-#               ^io <io>)
-#    (<io> ^input-link <il>)             
-#    (<io> ^output-link <ol>)
-
-#    (<o> ^name moveDeliver)
-#    (<o> ^parameter <food>)
-#    (<food> ^X <x>)
-#    (<food> ^Y <y>)
-#    (<food> ^ID <leafletId>)
-
-#    (<s> ^CREATURE <creature>)
-#    (<creature> ^POSITION <creaturePosition>)
-#    (<creaturePosition> ^X <creatureX>)
-#    (<creaturePosition> ^Y <creatureY>)
-
-#    (<creature> ^LEAFLETS <leaflets>)
-#    (<leaflets> ^LEAFLET <leaflet>)
-#    (<leaflet> ^ID <leafletId>)
-# -->
-#    (<creaturePosition> ^X <creatureX> -)
-#    (<creaturePosition> ^Y <creatureY> -)
-#    (<creaturePosition> ^X <x>)
-#    (<creaturePosition> ^Y <y>)
-#    (<leaflets> ^LEAFLET <leaflet> -)
-# }
+   (<creature> ^SENSOR.VISUAL.ENTITY <entidade>)
+   (<entidade> ^TYPE DELIVERY)
+   (<entidade> ^DISTANCE <distance>)
+-->
+   (<creaturePosition> ^X <creatureX> -)
+   (<creaturePosition> ^Y <creatureY> -)
+   (<creaturePosition> ^X <x>)
+   (<creaturePosition> ^Y <y>)
+   (<entidade> ^DISTANCE <distance> -)
+   (<entidade> ^DISTANCE 0 )
+}
 
 ################################### DELIVER  ###################################
 # Propose*deliver*leaflet:
@@ -137,15 +139,21 @@ sp {propose*deliver*leaflet
    (<creature> ^LEAFLETS.LEAFLET <leaflet>)
    (<leaflet> ^SITUATION 1.0) 
    (<leaflet> ^ID <leafletId>)
+   (<leaflet> ^PAYMENT <leafletPayment>)
+
+   (<memory> ^ENTITY <entidade>)
+   (<entidade> ^TYPE DELIVERY)
+   (<entidade> ^DISTANCE <distance> < 30)
 -->
-   (<s> ^operator <o> +)
+   (<s> ^operator <o> + =)
    (<o> ^name deliverLeaflet)
    (<o> ^ID <leafletId>)
+   (<o> ^PAYMENT <leafletPayment>)
    }
    
 # Apply*deliver*leaflet:
 # If the move operator is selected, then generate an output command to it 
-sp {apply*move*deliver
+sp {apply*deliver*leaflet
    (state <s> ^operator <o>
               ^io <io>)
    (<io> ^input-link <il>)             
@@ -223,6 +231,8 @@ sp {propose*move*food
 
    (<creature> ^SENSOR.FUEL <FUEL>)
    (<FUEL> ^VALUE <valueFuel> < <minFuel>)
+
+   # -(<creature> ^LEAFLETS.LEAFLET.SITUATION 1.0) 
 -->
    (<s> ^operator <o> +)
    (<o> ^name moveFood)
@@ -366,6 +376,9 @@ sp {propose*move*jewel
    (<entityInMemory> ^Y <entityInMemoryPositionY>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
    (<entityInMemory> ^COLOR <cor>)
+
+   -(<creature> ^LEAFLETS.LEAFLET.SITUATION 1.0) 
+
 -->
    (<s> ^operator <o> +)
    (<o> ^name moveJewel)
@@ -464,7 +477,6 @@ sp {apply*get*jewel
    (<cm> ^GET <command>)
    (<command> ^Name <jewelName>)
    (<memory> ^ENTITY <memoryEntity> -)
-
 
 }
   
@@ -629,7 +641,7 @@ sp {moveFood*moveJewel*preferences*moveJewelWins
            ^superstate <ss>)
 (<ss> ^io.input-link <il>)
 (<o> ^name moveDeliver)
-(<o2> ^name deliver)
+(<o2> ^name deliverLeaflet)
 -->
 (<ss> ^operator <o2> > <o>)} 
 
@@ -640,7 +652,9 @@ sp {deliver*deliver*preferences*HigherPaymentWins
            ^superstate <ss>)
 (<ss> ^io.input-link <il>)
 (<o> ^name deliverLeaflet)
+(<o> ^PAYMENT <payment1>)
 (<o2> ^name deliverLeaflet)
+(<o2> ^PAYMENT <payment2> > <payment1>)
 -->
 (<ss> ^operator <o2> > <o>)} 
 

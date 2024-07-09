@@ -163,16 +163,11 @@ public class SoarBridge
                 
               for (int i = 0; i<=2; i++){
 
-                // if (c.getLeaflets().get(i).isCompleted()) {
-                //     System.out.println("completou o leaflet");
-                //     System.out.println(String.valueOf(c.getLeaflets().get(i).getID()));
-                //     c.deliverLeaflet(String.valueOf(c.getLeaflets().get(i).getID()));
-                //     continue;
-                // }
                 Identifier creatureLeafletsLeaflet = CreateIdWME(creatureLeaflets,"LEAFLET");
                 CreateFloatWME(creatureLeafletsLeaflet, "ID",c.getLeaflets().get(i).getID());
                 CreateFloatWME(creatureLeafletsLeaflet, "PAYMENT",c.getLeaflets().get(i).getPayment());
                 CreateFloatWME(creatureLeafletsLeaflet, "SITUATION",c.getLeaflets().get(i).getSituation());
+                // Identifier creatureLeafletsLeafletJewels = CreateIdWME(creatureLeafletsLeaflet,"JEWELS");
                 
                 
                 HashMap<String, Integer> result = c.getLeaflets().get(i).getWhatToCollect();
@@ -181,6 +176,7 @@ public class SoarBridge
                   String key = entry.getKey();
                   Integer value = entry.getValue();
                   accumulatedResults.put(key, accumulatedResults.getOrDefault(key, 0) + value);
+                //   CreateFloatWME(creatureLeafletsLeafletJewels, key, value);
                 }
 
               }
