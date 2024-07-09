@@ -5,49 +5,180 @@ epmem --set learning off
 #smem --off
 #log --level error
 
-###################################  DELIVER  ###################################
-# se puder entregar e longe do delivery spot, vai atrás dele
-# sp{propose*move*deliver
-#     (state <s> ^io.input-link <il>)
-#     (<il> ^CREATURE <creature>)
-#     (<creature> ^LEAFLETS <leaflets>)
-#     (<leaflets> ^LEAFLET <leaflet>)
-#     (<leaflet> ^SITUATION <situation> 1)
-#     (<leaflet> ^ID <leafletId>)
+sp {clone-creature
+   (state <s> ^io.input-link <il>)
+   (<il> ^CREATURE <creature>)
+-->
+   (<s> ^CREATURE (deep-copy <creature>))
+   }
 
-#     (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
-#     (<entity> ^TYPE <tipo> DELIVERY)
-#     (<entity> ^X <x>)
-#     (<entity> ^Y <y>)
-# -->
-#     (<s> ^operator <o> +)
-#     (<o> ^name moveDelivery)
-#     (<o> ^parameter <info>)
-#     (<info> ^NAME <leafletId>)
-#     (<info> ^X <x>)
-#     (<info> ^Y <y>)
-# }
+###################################  PLAN  ###################################
+sp {propose*plan
+   (state <s> ^io.output-link <ol>)
+   -(<ol> ^plan <p>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name create-plan)
+}
 
-# sp{apply*move*deliver
-#     (state <s> ^operator <o>
-#                ^io <io>)
-#     (<io> ^input-link <il>)
-#     (<io> ^output-link <ol>)
-#     (<o> ^name moveDelivery)
-#     (<o> ^parameter <info>)
-#     (<info> ^NAME <leafletId>)
-#     (<info> ^X <x>)
-#     (<info> ^Y <y>)
-# -->
-#     (<ol> ^MOVE <command>)
-#     (<command> ^Vel 1)
-#     (<command> ^VelR 1)
-#     (<command> ^VelL 1)
-#     (<command> ^X <x>)
-#     (<command> ^Y <y>)
-# }
+sp {apply*plan
+   (state <s> ^operator <o>)
+   (<s> ^io.output-link <ol>)
+   (<o> ^name create-plan)
+-->
+   (<ol> ^plan <p>)
+   (<p> ^step 0)
+}
 
+sp {send*plan
+    (state <s> ^io.output-link <ol>)
+    (<s> ^send 1)
+    (<ol> ^plan <plan>)
+    (<plan> ^0 <command>)
+    (<command> ^<action> <a>)
+-->
+    (<ol> ^<action> <a>)
+    # (halt)
+}
+################################### GO DELIVER  ###################################
+# # # Propose*move*deliver:
+sp {propose*move*deliver
+   (state <s> ^io.input-link <il>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
+   (<memory> ^ENTITY <entityInMemory>)
+   (<creature> ^POSITION <creaturePosition>)
+   (<creaturePosition> ^X <creaturePositionX>)
+   (<creaturePosition> ^Y <creaturePositionY>)
 
+   (<entityInMemory> ^TYPE DELIVERY)
+   (<entityInMemory> ^X <entityInMemoryPositionX>)
+   (<entityInMemory> ^Y <entityInMemoryPositionY>)
+   (<entityInMemory> ^DISTANCE <distance> > 30)
+
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION 1.0) 
+   (<leaflet> ^ID <leafletId>)
+
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name moveDeliver)
+   (<o> ^parameter <food>)
+   (<food> ^X <entityInMemoryPositionX>)
+   (<food> ^Y <entityInMemoryPositionY>)
+   (<food> ^ID <leafletId>)
+   }
+   
+# Apply*move*deliver:
+# If the move operator is selected, then generate an output command to it 
+sp {apply*move*deliver
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+
+   (<o> ^name moveDeliver)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+
+   (<s> ^CREATURE <creature>)
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
+-->
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^MOVE <command>)
+   (<command> ^Vel 3)
+   (<command> ^VelR 3)
+   (<command> ^VelL 3)
+   (<command> ^X <x>)
+   (<command> ^Y <y>)
+}
+
+# # Apply*move*deliver*position:
+# # If the move operator is selected, then generate an output command to it 
+sp {apply*move*deliver*position*update
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+
+   (<o> ^name moveDeliver)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+   (<food> ^ID <leafletId>)
+
+   (<s> ^CREATURE <creature>)
+   (<creature> ^POSITION <creaturePosition>)
+   (<creaturePosition> ^X <creatureX>)
+   (<creaturePosition> ^Y <creatureY>)
+
+   (<creature> ^SENSOR.VISUAL.ENTITY <entidade>)
+   (<entidade> ^TYPE DELIVERY)
+   (<entidade> ^DISTANCE <distance>)
+-->
+   (<creaturePosition> ^X <creatureX> -)
+   (<creaturePosition> ^Y <creatureY> -)
+   (<creaturePosition> ^X <x>)
+   (<creaturePosition> ^Y <y>)
+   (<entidade> ^DISTANCE <distance> -)
+   (<entidade> ^DISTANCE 0 )
+}
+
+################################### DELIVER  ###################################
+# Propose*deliver*leaflet:
+sp {propose*deliver*leaflet
+   (state <s> ^io.input-link <il>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
+   (<creature> ^POSITION <creaturePosition>)
+
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION 1.0) 
+   (<leaflet> ^ID <leafletId>)
+   (<leaflet> ^PAYMENT <leafletPayment>)
+
+   (<memory> ^ENTITY <entidade>)
+   (<entidade> ^TYPE DELIVERY)
+   (<entidade> ^DISTANCE <distance> < 30)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name deliverLeaflet)
+   (<o> ^ID <leafletId>)
+   (<o> ^PAYMENT <leafletPayment>)
+   }
+   
+# Apply*deliver*leaflet:
+# If the move operator is selected, then generate an output command to it 
+sp {apply*deliver*leaflet
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+
+   (<o> ^name deliverLeaflet)
+   (<o> ^ID <leafletId>)
+
+   (<s> ^CREATURE <creature>)
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
+
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION <sit>) 
+   (<leaflet> ^ID <leafletId>)
+-->
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^DELIVERY <command>)
+   (<command> ^Name <leafletId>)
+   (<leaflet> ^SITUATION <sit> -)
+   (<leaflet> ^SITUATION 0.0)
+   (<s> ^send 1)
+}
 
 
 ###################################  WANDER  ###################################
@@ -56,8 +187,9 @@ epmem --set learning off
 sp {propose*wander
    (state <s> ^io.input-link <il>)
    (<ss> ^superstate nil)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL <visual>)
+   -(<visual> ^ENTITY <algo>)
 -->
    (<ss> ^operator <o> +)
    (<o> ^name wander)}
@@ -69,138 +201,29 @@ sp {apply*wander
               ^io <io>)
    (<io> ^output-link <ol>)
    (<o> ^name wander)
+   # -(<ol> ^MOVE <anywhere>)
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
+   -(<s> ^send 1)
 -->
-   (<ol> ^MOVE <command>)
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^MOVE <command>)
+   (<s> ^send 1)
    (<command> ^Vel 0)
    (<command> ^VelR 2)
    (<command> ^VelL 0)
-   (halt)
 }
     
-# If the wander operator is selected,
-# and there is a completed move command on the output link,
-# then remove that command.   
-sp {apply*wander*remove*move
-(state <s> ^operator.name wander
-           ^io.output-link <out>)
-(<out> ^MOVE <move>)
-(<move> ^status complete)
--->
-(<out> ^MOVE <move> -)}   
-
-################ SEE ENTITY WITH MEMORY COUNT #####################
-# This operator will make the agent hold some entities in memory if the agent already has some entities in memory
-
-# Propose*see*entity*with*memory*count:
-sp {propose*see*entity*with*memory*count
-   (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^SENSOR.VISUAL.ENTITY <entity>)     
-   (<entity> ^TYPE <type> << JEWEL FOOD >>)   
-   (<entity> ^COLOR <color>)
-   (<entity> ^X <x>)
-   (<entity> ^Y <y>) 
-   (<entity> ^NAME <name>)
-   (<creature> ^MEMORY <memory>)   
-   -(<memory> ^ENTITY.NAME <name>)
-   (<memory> ^COUNT <quantity> < 7)
--->
-   (<s> ^operator <o> +)
-   (<o> ^name seeEntityWithMemoryCount)
-   (<o> ^parameterEntity <newEntity>)
-   (<newEntity> ^Name <name>)
-   (<newEntity> ^Type <type>)
-   (<newEntity> ^X <x>)
-   (<newEntity> ^Y <y>)
-   (<newEntity> ^Color <color>)}
-   
-# Apply*see*entity*with*memory*count:
-# If the see operator is selected, then generate an output command to it 
-sp {apply*see*entity*with*memory*count
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)
-   (<io> ^output-link <ol>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)
-   (<memory> ^COUNT <quantity>)   
-   (<o> ^name seeEntityWithMemoryCount)
-   (<o> ^parameterEntity <newEntity>)
-   (<newEntity> ^X <x>)
-   (<newEntity> ^Y <y>)
-   (<newEntity> ^Name <name>)
-   (<newEntity> ^Type <type>)
-   (<newEntity> ^Color <color>)
--->
-   (<memory> ^ENTITY <memoryEntity>)
-   (<memoryEntity> ^X <x>)
-   (<memoryEntity> ^Y <y>)
-   (<memoryEntity> ^NAME <name>)
-   (<memoryEntity> ^TYPE <type>)
-   (<memoryEntity> ^COLOR <color>) 
-   (<memory> ^COUNT <quantity> -)
-   (<memory> ^COUNT (+ 1 <quantity>))}
-   
-################  SEE ENTITY WITHOUT MEMORY COUNT #################
-# This operator will make the agent hold some entities in memory if the agent has not some entities in memory
-
-# Propose*see*entity*without*memory*count:
-sp {propose*see*entity*without*memory*count
-   (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
-   (<entity> ^TYPE <type> << JEWEL FOOD >>)
-   (<entity> ^X <x>)
-   (<entity> ^Y <y>) 
-   (<entity> ^NAME <name>)
-   (<entity> ^COLOR <color>)
-   (<creature> ^MEMORY <memory>)   
-   -(<memory> ^ENTITY.NAME <name>)
-   -(<memory> ^COUNT <quantity>)
--->
-   (<s> ^operator <o> +)
-   (<o> ^name seeEntityWithoutMemoryCount)
-   (<o> ^parameterEntity <newEntity>)
-   (<newEntity> ^Name <name>)
-   (<newEntity> ^Type <type>)
-   (<newEntity> ^X <x>)
-   (<newEntity> ^Y <y>)
-   (<newEntity> ^Color <color>)}
-   
-# Apply*see*entity*without*memory*count:
-# If the see operator is selected, then generate an output command to it 
-sp {apply*see*entity*without*memory*count
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)
-   (<io> ^output-link <ol>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)  
-   (<o> ^name seeEntityWithoutMemoryCount)
-   (<o> ^parameterEntity <newEntity>)
-   (<newEntity> ^X <x>)
-   (<newEntity> ^Y <y>)
-   (<newEntity> ^Name <name>)
-   (<newEntity> ^Type <type>)
-   (<newEntity> ^Color <color>)
--->
-   (<memory> ^ENTITY <memoryEntity>)
-   (<memoryEntity> ^X <x>)
-   (<memoryEntity> ^Y <y>)
-   (<memoryEntity> ^NAME <name>)
-   (<memoryEntity> ^TYPE <type>)
-   (<memoryEntity> ^COLOR <color>)
-   (<memory> ^COUNT 1)}
- 
-
 ##############################  MOVE FOOD  #####################################
 # This operator will make the agent go straight to the food
 
 # Propose*move*food:
 sp {propose*move*food
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<creature> ^POSITION <creaturePosition>)
    (<creaturePosition> ^X <creaturePositionX>)
@@ -210,6 +233,11 @@ sp {propose*move*food
    (<entityInMemory> ^Y <entityInMemoryPositionY>)
    (<entityInMemory> ^NAME <entityInMemoryName>) 
    (<creature> ^PARAMETERS.MINFUEL <minFuel>) 
+
+   (<creature> ^SENSOR.FUEL <FUEL>)
+   (<FUEL> ^VALUE <valueFuel> < <minFuel>)
+
+   # -(<creature> ^LEAFLETS.LEAFLET.SITUATION 1.0) 
 -->
    (<s> ^operator <o> +)
    (<o> ^name moveFood)
@@ -232,65 +260,75 @@ sp {apply*move*food
    (<food> ^X <x>)
    (<food> ^Y <y>)
    (<food> ^NAME <entityInMemoryName>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
+   # -(<ol> ^EAT <something>)
+    (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
 -->
-   (<ol> ^MOVE <command>)
-   (<command> ^Vel 1)
-   (<command> ^VelR 1)
-   (<command> ^VelL 1)
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^MOVE <command>)
+   (<command> ^Vel 3)
+   (<command> ^VelR 3)
+   (<command> ^VelL 3)
    (<command> ^X <x>)
    (<command> ^Y <y>)
-   #(halt)
 }
-  
-# Apply*moveFood*remove-move:
-# If the moveFood operator is selected,
-# and there is a completed move command on the output link,
-# then remove that command.   
-sp {apply*moveFood*remove-move
-(state <s> ^operator.name moveFood
-           ^io.output-link <out>)
-(<out> ^MOVE <move>)
-(<move> ^status complete)
--->
-(<out> ^MOVE <move> -)}   
 
 #Remove the food from memory because it is not there anymore 
 sp {apply*moveFood*remove*food
-(state <s> ^operator <o>
-           ^io.input-link <il>)
-(<o> ^name moveFood)
-(<o> ^parameter <food>)
-(<food> ^X <x>)
-(<food> ^Y <y>)
-(<il> ^CREATURE <creature>)
-(<creature> ^MEMORY <memory>)
-(<memory> ^ENTITY <entityInMemory>) 
-(<memory> ^COUNT <quantity>)
-(<entityInMemory> ^X <x>)
-(<entityInMemory> ^Y <y>)      
--(<creature> ^SENSOR.VISUAL.ENTITY.X <entityX> <x>)
--(<creature> ^SENSOR.VISUAL.ENTITY.Y <entityY> <y>)
+   (state <s> ^operator <o>
+            ^io.input-link <il>)
+   (<o> ^name moveFood)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
+   (<memory> ^ENTITY <entityInMemory>) 
+   (<entityInMemory> ^X <x>)
+   (<entityInMemory> ^Y <y>)      
 -->
-(<memory> ^ENTITY <entityInMemory> -)
-(<memory> ^COUNT <quantity> -
-          ^COUNT (- <quantity> 1))}   
+   (<memory> ^ENTITY <entityInMemory> -)}
 
+# Apply*move*food*position:
+# If the move operator is selected, then generate an output command to it 
+sp {apply*move*food*position*update
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)             
+   (<io> ^output-link <ol>)
+   (<o> ^name moveFood)
+   (<o> ^parameter <food>)
+   (<food> ^X <x>)
+   (<food> ^Y <y>)
+   (<s> ^CREATURE <creature>)
+
+   (<creature> ^POSITION <creaturePosition>)
+   (<creaturePosition> ^X <creatureX>)
+   (<creaturePosition> ^Y <creatureY>)
+-->
+   (<creaturePosition> ^X <creatureX> -)
+   (<creaturePosition> ^Y <creatureY> -)
+   (<creaturePosition> ^X <x>)
+   (<creaturePosition> ^Y <y>)
+}
 ###############################  EAT FOOD  #####################################
 # This operator will make the agent eat the food
 
 # Propose*eat*food:
 sp {propose*eat*food
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
    (<entity> ^TYPE FOOD) 
    (<entity> ^DISTANCE <foodDistance> < 30)
    (<entity> ^NAME <foodName>)
-   (<creature> ^MEMORY.ENTITY.NAME <memoryItemName> <foodName>)     
+   (<creature> ^SENSOR.VISUAL.ENTITY.NAME <memoryItemName> <foodName>)     
 -->
    (<s> ^operator <o> +)
    (<o> ^name eatFood)
@@ -307,34 +345,20 @@ sp {apply*eat*food
    (<io> ^output-link <ol>)
    (<o> ^name eatFood)
    (<o> ^parameter.NAME <foodName>)
-   (<il> ^CREATURE <creature>) 
-   (<creature> ^MEMORY <memory>)
-   (<memory> ^COUNT <quantity>)  
+   (<s> ^CREATURE <creature>) 
+   (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <foodName>)
-   - (<ol> ^EAT <something>)
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
 -->
-   (<ol> ^EAT <command>)
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^EAT <command>)
    (<command> ^Name <foodName>)
-   (<memory> ^COUNT <quantity> -
-             ^COUNT (- <quantity> 1))
    (<memory> ^ENTITY <memoryEntity> -)
-   #(halt)
 }
-  
-# Apply*eat*remove-move:
-# If the eatFood operator is selected,
-# and there is a completed move command on the output link,
-# then remove that command.   
-sp {apply*eatFood*remove-eat
-(state <s> ^operator <o>            
-           ^io.output-link <out>)
-(<o> ^name eatFood)
-(<o> ^parameter.name <foodName>)
-(<out> ^EAT <eat>)
-(<eat> ^status complete)
--->
-(<out> ^EAT <eat> -)}
 
 #############################  MOVE JEWEL  #####################################
 # This operator will make the agent go straight to the jewel
@@ -342,17 +366,24 @@ sp {apply*eatFood*remove-eat
 # Propose*move*jewel:
 sp {propose*move*jewel
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <entityInMemory>)
    (<creature> ^POSITION <creaturePosition>)
+
+   (<creature> ^LEAFLETS.JEWELS <joiaValida>)
+   (<joiaValida> ^<cor> <faltante> > 0)
+
    (<creaturePosition> ^X <creaturePositionX>)
    (<creaturePosition> ^Y <creaturePositionY>)
    (<entityInMemory> ^TYPE JEWEL)
    (<entityInMemory> ^X <entityInMemoryPositionX>)
    (<entityInMemory> ^Y <entityInMemoryPositionY>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
-   (<entityInMemory> ^COLOR <entityInMemoryColor>)       
+   (<entityInMemory> ^COLOR <cor>)
+
+   -(<creature> ^LEAFLETS.LEAFLET.SITUATION 1.0) 
+
 -->
    (<s> ^operator <o> +)
    (<o> ^name moveJewel)
@@ -361,7 +392,9 @@ sp {propose*move*jewel
    (<jewel> ^X <entityInMemoryPositionX>)
    (<jewel> ^Y <entityInMemoryPositionY>)
    (<jewel> ^NAME <entityInMemoryName>)
-   (<jewel> ^COLOR <entityInMemoryColor>)}
+   (<jewel> ^COLOR <cor>)
+   (write <cor> <faltante> )
+   }
    
 # Apply*move*jewel:
 # If the move operator is selected, then generate an output command to it 
@@ -375,53 +408,37 @@ sp {apply*move*jewel
    (<jewel> ^X <x>)
    (<jewel> ^Y <y>)
    (<jewel> ^NAME <entityInMemoryName>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)
+#    (<jewel> ^DISTANCE <entityInMemoryDistance>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL <memory>)
+   (<creature> ^POSITION <position>)
    (<memory> ^ENTITY <entityInMemory>)
    (<entityInMemory> ^NAME <entityInMemoryName>)
+   (<entityInMemory> ^DISTANCE <entityInMemoryDistance>)
+   (<position> ^X <creatureX>)
+   (<position> ^Y <creatureY>)
+
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
 -->
-   (<ol> ^MOVE <command>)
-   (<command> ^Vel 1)
-   (<command> ^VelR 1)
-   (<command> ^VelL 1)
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^MOVE <command>)   
+
+   (<position> ^X <creatureX> -)
+   (<position> ^Y <creatureY> -)
+   (<position> ^X <x>)
+   (<position> ^Y <y>)
+   (<entityInMemory> ^DISTANCE <entityInMemoryDistance> -)
+   (<entityInMemory> ^DISTANCE 0 )
+
+   (<command> ^Vel 3)
+   (<command> ^VelR 3)
+   (<command> ^VelL 3)
    (<command> ^X <x>)
    (<command> ^Y <y>)
-   #(halt)
 }
-
-  
-# Apply*moveJewel*remove-move:
-# If the moveJewel operator is selected,
-# and there is a completed move command on the output link,
-# then remove that command.   
-sp {apply*moveJewel*remove-move
-(state <s> ^operator.name moveJewel
-           ^io.output-link <out>)
-(<out> ^MOVE <move>)
-(<move> ^status complete)
--->
-(<out> ^MOVE <move> -)}   
-
-#Remove the jewel From memory because de jewel is not there 
-sp {apply*moveJewel*remove*jewel
-(state <s> ^operator <o>
-           ^io.input-link <il>)
-(<o> ^name moveJewel)
-(<o> ^parameter <jewel>)
-(<jewel> ^X <x>)
-(<jewel> ^Y <y>)
-(<il> ^CREATURE <creature>)
-(<creature> ^MEMORY <memory>)
-(<memory> ^ENTITY <entityInMemory>) 
-(<memory> ^COUNT <quantity>)
-(<entityInMemory> ^X <x>)
-(<entityInMemory> ^Y <y>)      
--(<creature> ^SENSOR.VISUAL.ENTITY.X <entityX> <x>)
--(<creature> ^SENSOR.VISUAL.ENTITY.Y <entityY> <y>)
--->
-(<memory> ^ENTITY <entityInMemory> -)
-(<memory> ^COUNT <quantity> -
-          ^COUNT (- <quantity> 1))}   
 
 ##############################  GET JEWEL  #####################################
 # This operator will make the agent get the jewel
@@ -429,12 +446,12 @@ sp {apply*moveJewel*remove*jewel
 # Propose*get*jewel:
 sp {propose*get*jewel
    (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
+   (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
    (<entity> ^TYPE JEWEL) 
    (<entity> ^DISTANCE <jewelDistance> < 30)
    (<entity> ^NAME <jewelName>)
-   (<creature> ^MEMORY.ENTITY.NAME <memoryItemName> <jewelName>)     
+   (<creature> ^SENSOR.VISUAL.ENTITY.NAME <memoryItemName> <jewelName>)     
 -->
    (<s> ^operator <o> +)
    (<o> ^name getJewel)
@@ -451,91 +468,23 @@ sp {apply*get*jewel
    (<io> ^output-link <ol>)
    (<o> ^name getJewel)
    (<o> ^parameter.NAME <jewelName>)
-   (<il> ^CREATURE <creature>) 
-   (<creature> ^MEMORY <memory>)
-   (<memory> ^COUNT <quantity>)  
+   (<s> ^CREATURE <creature>) 
+   (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <jewelName>)
-   - (<ol> ^GET <anything>)   # Colocado por Ricardo
+
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
 -->
-   (<ol> ^GET <command>)
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^GET <command>)
    (<command> ^Name <jewelName>)
-   (<memory> ^COUNT <quantity> -
-             ^COUNT (- <quantity> 1))
    (<memory> ^ENTITY <memoryEntity> -)
-   #(halt)
+
 }
   
-# Apply*get*remove-move:
-# If the getJewel operator is selected,
-# and there is a completed move command on the output link,
-# then remove that command.   
-sp {apply*getJewel*remove-get
-(state <s> ^operator <o>            
-           ^io.output-link <out>)
-(<o> ^name getJewel)
-(<o> ^parameter.name <jewelName>)
-(<out> ^GET <move>)
-(<move> ^status complete)
--->
-(<out> ^GET <move> -)}   
-
-#############################  AVOID BRICK  ####################################
-# This operator will make the agent avoid the brick
-# Propose*avoid*brick:
-sp {propose*avoidBrick
-   (state <s> ^io.input-link <il>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
-   (<entity> ^TYPE BRICK)
-   (<entity> ^DISTANCE <distance> <= 61)      
--->
-   (<s> ^operator <o> +)     
-   (<o> ^name avoidBrick)
-   (<o> ^parameter <distance>)}
-      
-     
-# Apply*avoidBrick:
-# If the move operator is selected, then generate an output command to it 
-sp {apply*avoidBrick
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<o> ^name avoidBrick)
-   (<o> ^parameter <distance>)              
-   (<io> ^output-link <ol>)
--->
-   (<ol> ^MOVE <command>)
-   (<command> ^Vel  0)
-   (<command> ^VelR (* 55 (/ <distance>)))
-   (<command> ^VelL 0)}
-
-#Remove the entity from memory
-sp {apply*avoidBrick*remove*entity*memory
-(state <s> ^operator <o>
-           ^io.input-link <il>)
-(<o> ^name avoidBrick)
-(<o> ^entityName <entityName>)
-(<il> ^CREATURE <creature>)
-(<creature> ^MEMORY <memory>)
-(<memory> ^COUNT <quantity>)
-(<memory> ^ENTITY <entityInMemory>)           
-(<entityInMemory> ^NAME <name> <entityName>)
--->
-(<memory> ^ENTITY <entityInMemory> -)
-(<memory> ^COUNT <quantity> -
-          ^COUNT (- <quantity> 1))}             
-                      
-# Apply*avoidBrick*remove-move:
-# If the avoidBrick operator is selected,
-# and there is a completed move command on the output link,
-# then remove that command.   
-sp {apply*avoidBrick*remove-move
-(state <s> ^operator.name avoidBrick
-           ^io.output-link <out>)
-(<out> ^MOVE <move>)
-(<move> ^status complete)
--->
-(<out> ^MOVE <move> -)}  
             
 ##################  OPERATORS PREFERENCES AND IMPASSE SOLVE  ###################
 
@@ -547,15 +496,6 @@ sp {moveJewel*seeEntity*preferences
                      <o2> +)
 (<o> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
 (<o2> ^name << moveJewel moveFood eatFood >>)
--->
-(<s> ^operator <o> > <o2>)} 
-
-# See Entity With Memory vs Avoid Brick
-sp {avoidBrick*seeEntityWithMemory*preferences
-(state <s> ^operator <o> + 
-                     <o2> +)
-(<o> ^name avoidBrick)
-(<o2> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
 -->
 (<s> ^operator <o> > <o2>)} 
 
@@ -587,15 +527,6 @@ sp {getJewel*seeEntity*preferences
 -->
 (<s> ^operator <o> > <o2>)} 
 
-# Get Jewel vs Avoid Brick
-sp {getJewel*avoidBrick*preferences
-(state <s> ^operator <o> + 
-                     <o2> +)
-(<o> ^name getJewel)
-(<o2> ^name avoidBrick)
--->
-(<s> ^operator <o> > <o2>)} 
-
 # Move Jewel vs Move Jewel Preferences
 sp {moveJewel*moveJewel*less*distance
 (state <s> ^attribute operator 
@@ -603,13 +534,14 @@ sp {moveJewel*moveJewel*less*distance
            ^item <o> {<> <o> <o2>}
            ^superstate <ss>)
 (<ss> ^io.input-link <il>)
-(<il> ^CREATURE <creature>)                 
+(<ss> ^CREATURE <creature>)                 
 (<o> ^name moveJewel)
 (<o2> ^name moveJewel)
 (<o2> ^parameter.distance <distance2>)
 (<o>  ^parameter.distance <distance> <= <distance2>)
 -->
 (<ss> ^operator <o> > <o2>)} 
+
 
 # Get Jewel vs Get Jewel Preferences
 sp {getJewel*getJewel*preferences
@@ -635,14 +567,6 @@ sp {moveFood*eatFood*preferences
 -->
 (<s> ^operator <o> > <o2>)} 
 
-# Eat Food vs Avoid Brick
-sp {eatFood*avoidBrick*preferences
-(state <s> ^operator <o> + 
-                     <o2> +)
-(<o> ^name eatFood)
-(<o2> ^name avoidBrick)
--->
-(<s> ^operator <o> > <o2>)} 
 
 # Move Food vs Move Food Preferences
 sp {moveFood*moveFood*preferences
@@ -682,7 +606,7 @@ sp {moveFood*moveJewel*preferences*moveFoodWins
 (<o> ^name moveFood)
 (<o> ^parameterFuel <threshold>)
 (<o2> ^name moveJewel)
-(<il> ^CREATURE.SENSOR.FUEL <fuel>)
+(<ss> ^CREATURE.SENSOR.FUEL <fuel>)
 (<fuel> ^VALUE <value> <= <threshold>)        
 -->
 (<ss> ^operator <o> > <o2>)} 
@@ -697,47 +621,57 @@ sp {moveFood*moveJewel*preferences*moveJewelWins
 (<o> ^name moveFood)
 (<o> ^parameterFuel <threshold>)
 (<o2> ^name moveJewel)
-(<il> ^CREATURE.SENSOR.FUEL <fuel>)
+(<ss> ^CREATURE.SENSOR.FUEL <fuel>)
 (<fuel> ^VALUE <value> > <threshold>)        
 -->
 (<ss> ^operator <o2> > <o>)} 
 
-
-#BRICK  
-
-# Avoid Brick vs Avoid Brick Preferences
-sp {avoidBrick*avoidBrick*without*move*jewel*preferences
+# Move Jewel vs Move Deliver Preferences - Move Deliver Wins
+sp {moveFood*moveJewel*preferences*moveJewelWins
 (state <s> ^attribute operator 
            ^impasse tie
            ^item <o> {<> <o> <o2>}
-           ^item-count <itemCount>
-           ^superstate <ss>)        
-(<o> ^name avoidBrick)
-(<o2> ^name avoidBrick)
-(<o2> ^parameter <distance2>)
-(<o>  ^parameter <distance> <= <distance2>)
--->
-(<ss> ^operator <o> > <o2>)}
-
-# Avoid Brick vs Move Jewel vs Move Food Preferences with element in memory 
-sp {avoidBrick*moveJewel*moveFood*preferences
-(state <s> ^attribute operator 
-           ^impasse tie
-           ^item <o> {<> <o> <o2>}
-           ^item-count <itemCount> 2
-           ^superstate <ss>)        
-(<o> ^name avoidBrick)
-(<o2> ^name << moveJewel moveFood >>)
-(<o2> ^parameter <entity>)
-(<entity> ^NAME <entityName>)
+           ^superstate <ss>)
 (<ss> ^io.input-link <il>)
-(<il> ^CREATURE <creature>)
-(<creature> ^MEMORY <memory>)
-(<memory> ^ENTITY <entityInMemory>)
-(<entityInMemory> ^NAME <entityName>)
+(<o> ^name moveJewel)
+(<o2> ^name moveDeliver)
 -->
-(<o> ^entityName <entityName>)
-(<ss> ^operator <o> > <o2>)}
+(<ss> ^operator <o2> > <o>)} 
+
+# Deliver vs Move Deliver Preferences - Deliver Wins
+sp {moveFood*moveJewel*preferences*moveJewelWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name moveDeliver)
+(<o2> ^name deliverLeaflet)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {deliver*deliver*preferences*HigherPaymentWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name deliverLeaflet)
+(<o> ^PAYMENT <payment1>)
+(<o2> ^name deliverLeaflet)
+(<o2> ^PAYMENT <payment2> > <payment1>)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+
+sp {stop*to*send
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^operator <o>
+           ^superstate <ss>
+           ^send 1)
+-->
+(<s> ^operator <o> -)} 
 
 # WANDER
 
@@ -748,12 +682,25 @@ sp {wander*preferences
 -->
 (<s> ^operator <o> <)}
 
-# HALT
-
 sp {halt*condition
-  (state <s> ^impasse no-change ^type state -^operator)
+  (state <s> ^impasse no-change ^superstate <ss>)
+  (<ss> ^io.output-link <ol>)
+  (<ol> ^plan <plan>)
+  (<plan> ^0 <command>)
+  (<command> ^<action> <a>)
 -->
-  #(write I2)
-  (halt)
-  #(interrupt)
-}       
+  (<ss> ^send 1)
+  }      
+
+
+sp {worst*case
+    (state <s> ^impasse no-change ^superstate <ss>)
+    (<ss> ^io.output-link <ol>)
+    (<ol> ^plan <plan>)
+    -(<plan> ^0 <command>)
+-->
+    (<ol> ^MOVE <command>)
+    (<command> ^Vel 0)
+    (<command> ^VelR 2)
+    (<command> ^VelL 0)
+} 

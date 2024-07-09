@@ -61,7 +61,7 @@ sp {propose*move*deliver
    (<leaflet> ^ID <leafletId>)
 
 -->
-   (<s> ^operator <o> +)
+   (<s> ^operator <o> + =)
    (<o> ^name moveDeliver)
    (<o> ^parameter <food>)
    (<food> ^X <entityInMemoryPositionX>)
@@ -133,7 +133,7 @@ sp {apply*move*deliver*position*update
 sp {propose*deliver*leaflet
    (state <s> ^io.input-link <il>)
    (<s> ^CREATURE <creature>)
-   (<creature> ^SENSOR.VISUAL <memory>)
+   (<creature> ^SENSOR.VISUAL <memory>)(<jewel> ^COLOR <jewelColor>)
    (<creature> ^POSITION <creaturePosition>)
 
    (<creature> ^LEAFLETS.LEAFLET <leaflet>)
@@ -201,7 +201,6 @@ sp {apply*wander
               ^io <io>)
    (<io> ^output-link <ol>)
    (<o> ^name wander)
-   # -(<ol> ^MOVE <anywhere>)
    (<ol> ^plan <p>)
    (<p> ^step <stepNumber>)
    -(<s> ^send 1)
@@ -453,7 +452,7 @@ sp {propose*get*jewel
    (<entity> ^NAME <jewelName>)
    (<creature> ^SENSOR.VISUAL.ENTITY.NAME <memoryItemName> <jewelName>)     
 -->
-   (<s> ^operator <o> +)
+   (<s> ^operator <o> + =)
    (<o> ^name getJewel)
    (<o> ^parameter <jewel>)
    (<jewel> ^NAME <jewelName>)
