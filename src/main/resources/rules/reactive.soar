@@ -31,15 +31,12 @@ sp {propose*move*deliver
 
    (<creature> ^LEAFLETS.LEAFLET <leaflet>)
    (<leaflet> ^SITUATION 1.0) 
-   (<leaflet> ^ID <leafletId>)
-
 -->
-   (<s> ^operator <o> +)
+   (<s> ^operator <o> + =)
    (<o> ^name moveDeliver)
    (<o> ^parameter <food>)
    (<food> ^X <entityInMemoryPositionX>)
    (<food> ^Y <entityInMemoryPositionY>)
-   (<food> ^ID <leafletId>)
    }
    
 # Apply*move*deliver:
@@ -64,37 +61,6 @@ sp {apply*move*deliver
    (<command> ^X <x>)
    (<command> ^Y <y>)
    (interrupt)
-}
-
-# # Apply*move*deliver*position:
-# # If the move operator is selected, then generate an output command to it 
-sp {apply*move*deliver*position*update
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)             
-   (<io> ^output-link <ol>)
-
-   (<o> ^name moveDeliver)
-   (<o> ^parameter <food>)
-   (<food> ^X <x>)
-   (<food> ^Y <y>)
-   (<food> ^ID <leafletId>)
-
-   (<s> ^CREATURE <creature>)
-   (<creature> ^POSITION <creaturePosition>)
-   (<creaturePosition> ^X <creatureX>)
-   (<creaturePosition> ^Y <creatureY>)
-
-   (<creature> ^SENSOR.VISUAL.ENTITY <entidade>)
-   (<entidade> ^TYPE DELIVERY)
-   (<entidade> ^DISTANCE <distance>)
--->
-   (<creaturePosition> ^X <creatureX> -)
-   (<creaturePosition> ^Y <creatureY> -)
-   (<creaturePosition> ^X <x>)
-   (<creaturePosition> ^Y <y>)
-   (<entidade> ^DISTANCE <distance> -)
-   (<entidade> ^DISTANCE 0 )
 }
 
 ################################### DELIVER  ###################################
@@ -250,28 +216,6 @@ sp {apply*moveFood*remove*food
 -->
    (<memory> ^ENTITY <entityInMemory> -)}
 
-# Apply*move*food*position:
-# If the move operator is selected, then generate an output command to it 
-sp {apply*move*food*position*update
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)             
-   (<io> ^output-link <ol>)
-   (<o> ^name moveFood)
-   (<o> ^parameter <food>)
-   (<food> ^X <x>)
-   (<food> ^Y <y>)
-   (<s> ^CREATURE <creature>)
-
-   (<creature> ^POSITION <creaturePosition>)
-   (<creaturePosition> ^X <creatureX>)
-   (<creaturePosition> ^Y <creatureY>)
--->
-   (<creaturePosition> ^X <creatureX> -)
-   (<creaturePosition> ^Y <creatureY> -)
-   (<creaturePosition> ^X <x>)
-   (<creaturePosition> ^Y <y>)
-}
 ###############################  EAT FOOD  #####################################
 # This operator will make the agent eat the food
 

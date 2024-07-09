@@ -54,6 +54,7 @@ public class SoarBridge
     Identifier creaturePosition;
     Identifier creatureMemory;
     Identifier creatureLeaflets;
+    List<Integer> indices = new ArrayList<>();
 
     Environment env;
     public Creature c;
@@ -91,6 +92,9 @@ public class SoarBridge
             logger.severe("Error while creating SOAR Kernel");
             e.printStackTrace();
         }
+        indices.add(0);
+        indices.add(1);
+        indices.add(2);
     }
 
     private Identifier CreateIdWME(Identifier id, String s) {
@@ -160,8 +164,12 @@ public class SoarBridge
               creatureLeaflets = CreateIdWME(creature,"LEAFLETS");
               Identifier creatureLeafletsLeafletMissing = CreateIdWME(creatureLeaflets,"JEWELS");
               HashMap<String, Integer> accumulatedResults = new HashMap<>();
+              int i = 0;
+              Iterator<Integer> iterator = indices.iterator();
                 
-              for (int i = 0; i<=2; i++){
+            //   for (int i = 0; i<=2; i++){
+              while (iterator.hasNext()) {
+                i = iterator.next();
 
                 Identifier creatureLeafletsLeaflet = CreateIdWME(creatureLeaflets,"LEAFLET");
                 CreateFloatWME(creatureLeafletsLeaflet, "ID",c.getLeaflets().get(i).getID());
@@ -525,6 +533,18 @@ public class SoarBridge
             }
             catch(Exception e) {
                 System.out.println(e);
+            }
+            int i = 0;
+            Iterator<Integer> iterator = indices.iterator();
+                
+            while (iterator.hasNext()) {
+                i = iterator.next();
+                System.out.println(Long.toString(c.getLeaflets().get(i).getID()).equals(soarCommandDelivery.getThingName().replaceAll("\\.0$", "")));
+                if(Long.toString(c.getLeaflets().get(i).getID()).equals(soarCommandDelivery.getThingName().replaceAll("\\.0$", ""))){
+                    iterator.remove();
+                    break;
+                }
+                // if (soarCommandDelivery.getThingName == c.getLeaflets.get(i).getID())
             }
         }
         else
