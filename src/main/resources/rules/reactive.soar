@@ -17,6 +17,7 @@ sp {clone-creature
 # # # Propose*move*deliver:
 sp {propose*move*deliver
    (state <s> ^io.input-link <il>)
+   (<s> ^io.output-link <ol>)
    (<s> ^CREATURE <creature>)
    (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <entityInMemory>)
@@ -37,6 +38,12 @@ sp {propose*move*deliver
    (<o> ^parameter <food>)
    (<food> ^X <entityInMemoryPositionX>)
    (<food> ^Y <entityInMemoryPositionY>)
+   (<ol> ^MOVE <command>)
+   (<command> ^Vel 3)
+   (<command> ^VelR 3)
+   (<command> ^VelL 3)
+   (<command> ^X <x>)
+   (<command> ^Y <y>)
    }
    
 # Apply*move*deliver:

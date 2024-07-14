@@ -30,16 +30,118 @@ sp {apply*plan
    (<p> ^step 0)
 }
 
-sp {send*plan
+sp {propose*send*plan*sucess
+   (state <s> ^io.output-link <ol>)
+   (<s> ^send 1)
+   
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
+   (<p> ^<number> <cm>)
+   (<cm> ^DELIVERY <command>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name sendPlanSucess)
+}
+
+sp {apply*send*plan*sucess
     (state <s> ^io.output-link <ol>)
-    (<s> ^send 1)
+    (<s> ^operator.name sendPlanSucess)
     (<ol> ^plan <plan>)
     (<plan> ^0 <command>)
     (<command> ^<action> <a>)
 -->
     (<ol> ^<action> <a>)
-    # (halt)
+    (<s> ^send 0)
+    (interrupt)
 }
+
+sp {propose*send*plan*failure
+   (state <s> ^io.output-link <ol>)
+   (<s> ^send 1)
+   (<ol> ^plan <plan>)
+   (<plan> ^<number> <command>)
+   -(<command> ^DELIVERY <a>)
+   -(<ol> ^MOVE <anything>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name sendPlanFail)
+}
+
+
+sp {apply*send*plan*failure
+    (state <s> ^io.output-link <ol>)
+    (<s> ^operator <o>)
+    (<o> ^name sendPlanFail)
+-->
+    (<ol> ^MOVE <COMANDO>)
+    (<COMANDO> ^Vel 0)
+    (<COMANDO> ^VelR 2)
+    (<COMANDO> ^VelL 0)
+    (<s> ^send 0)
+    (interrupt)
+}
+
+# sp {send*plan
+#     (state <s> ^io.output-link <ol>)
+#     (<s> ^send 1)
+#     (<ol> ^plan <plan>)
+#     (<plan> ^0 <command>)
+#     (<command> ^<action> <a>)
+# -->
+#     (<ol> ^<action> <a>)
+#     (interrupt)
+# }
+
+# sp {send*plan*wander
+#     (state <s> ^io.output-link <ol>)
+#     (<s> ^send 1)
+#     (<ol> ^plan <plan>)
+#     (<plan> ^0 <command>)
+#     (<command> ^<action> <a>)
+#     (<plan> ^<position> <comando>)
+#     -(<comando> ^DELIVERY <b>)
+#     -(<ol> ^MOVE <anything>)
+# -->
+#     (<ol> ^MOVE <COMANDO>)
+#     (<COMANDO> ^Vel 0)
+#     (<COMANDO> ^VelR 2)
+#     (<COMANDO> ^VelL 0)
+#     (halt)
+# }
+
+################################### SET SITUATION  ###################################
+
+sp {propose*set*situation
+   (state <s> ^io.input-link <il>)
+   (<s> ^io.output-link <ol>)
+   (<s> ^CREATURE <creature>)
+
+   (<creature> ^LEAFLETS.JEWELS <joiaValida>)
+   (<joiaValida> -^<jewelColor> <faltante> > 0)
+
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION 0.0)
+
+--> 
+   (<s> ^operator <o> +)
+   (<o> ^name setSituation)
+}
+
+sp {apply*set*situation
+   (state <s> ^io.input-link <il>)
+   (<s> ^io.output-link <ol>)
+   (<s> ^CREATURE <creature>)
+
+   (<s> ^operator <o>)
+   (<o> ^name setSituation)
+
+   (<creature> ^LEAFLETS.LEAFLET <leaflet>)
+   (<leaflet> ^SITUATION <situation>)
+--> 
+   (<leaflet> ^SITUATION <situation> -)
+   (<leaflet> ^SITUATION 1.0)
+}
+
 ################################### GO DELIVER  ###################################
 # # # Propose*move*deliver:
 sp {propose*move*deliver
@@ -450,12 +552,14 @@ sp {propose*get*jewel
    (<entity> ^TYPE JEWEL) 
    (<entity> ^DISTANCE <jewelDistance> < 30)
    (<entity> ^NAME <jewelName>)
-   (<creature> ^SENSOR.VISUAL.ENTITY.NAME <memoryItemName> <jewelName>)     
+   (<entity> ^COLOR <jewelColor>)
+   (<creature> ^SENSOR.VISUAL.ENTITY.NAME <memoryItemName> <jewelName>)  
 -->
    (<s> ^operator <o> + =)
    (<o> ^name getJewel)
    (<o> ^parameter <jewel>)
    (<jewel> ^NAME <jewelName>)
+   (<jewel> ^COLOR <jewelColor>)
    (<jewel> ^DISTANCE <jewelDistance>)}
    
 # Apply*get*jewel:
@@ -467,7 +571,63 @@ sp {apply*get*jewel
    (<io> ^output-link <ol>)
    (<o> ^name getJewel)
    (<o> ^parameter.NAME <jewelName>)
+   (<o> ^parameter.COLOR <jewelColor>)
+   
    (<s> ^CREATURE <creature>) 
+   
+   (<creature> ^SENSOR.VISUAL <memory>)
+   (<memory> ^ENTITY <memoryEntity>)
+   (<memoryEntity> ^NAME <memoryEntityName> <jewelName>)
+
+   (<creature> ^LEAFLETS.JEWELS <joiaValida>)
+   (<joiaValida> ^<jewelColor> <faltante>)
+
+   (<ol> ^plan <p>)
+   (<p> ^step <stepNumber>)
+-->
+   (<p> ^step <stepNumber> -)
+   (<p> ^step (+ <stepNumber> 1))
+   (<p> ^<stepNumber> <cm>)
+   (<cm> ^GET <command>)
+   (<command> ^Name <jewelName>)
+   (<memory> ^ENTITY <memoryEntity> -)
+   (<joiaValida> ^<jewelColor> <faltante> -)
+   (<joiaValida> ^<jewelColor> (- <faltante> 1))
+   (<command> ^leaflets <leaflets>)
+}
+
+sp {propose*get*jewel*not*in*leaflet
+   (state <s> ^io.input-link <il>)
+   (<s> ^CREATURE <creature>)
+   (<creature> ^SENSOR.VISUAL.ENTITY <entity>)
+   (<entity> ^TYPE JEWEL) 
+   (<entity> ^DISTANCE <jewelDistance> < 30)
+   (<entity> ^NAME <jewelName>)
+   (<entity> ^COLOR <jewelColor>)
+
+   (<creature> ^LEAFLETS.JEWELS <joiaValida>)
+   -(<joiaValida> ^<jewelColor> <faltante>)
+
+   (<creature> ^SENSOR.VISUAL.ENTITY.NAME <memoryItemName> <jewelName>)  
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name getJewelNotInLeaflet)
+   (<o> ^parameter <jewel>)
+   (<jewel> ^NAME <jewelName>)
+   (<jewel> ^COLOR <jewelColor>)
+   (<jewel> ^DISTANCE <jewelDistance>)}
+
+sp {apply*get*jewel*not*in*leaflet
+   (state <s> ^operator <o>
+              ^io <io>)
+   (<io> ^input-link <il>)      
+   (<io> ^output-link <ol>)
+   (<o> ^name getJewelNotInLeaflet)
+   (<o> ^parameter.NAME <jewelName>)
+   (<o> ^parameter.COLOR <jewelColor>)
+   
+   (<s> ^CREATURE <creature>) 
+   
    (<creature> ^SENSOR.VISUAL <memory>)
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <jewelName>)
@@ -481,9 +641,8 @@ sp {apply*get*jewel
    (<cm> ^GET <command>)
    (<command> ^Name <jewelName>)
    (<memory> ^ENTITY <memoryEntity> -)
-
+   (<command> ^leaflets <leaflets>)
 }
-  
             
 ##################  OPERATORS PREFERENCES AND IMPASSE SOLVE  ###################
 
@@ -662,6 +821,16 @@ sp {deliver*deliver*preferences*HigherPaymentWins
 -->
 (<ss> ^operator <o2> > <o>)} 
 
+sp {deliver*check*preferences*HigherPaymentWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name check)
+-->
+(<ss> ^operator <o> > <o2>)} 
+
 
 sp {stop*to*send
 (state <s> ^attribute operator 
@@ -691,6 +860,84 @@ sp {halt*condition
   (<ss> ^send 1)
   }      
 
+# SET SITUATION
+sp {setSituation*getJewel*preferences*getJewelWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name setSituation)
+(<o2> ^name getJewel)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {setSituation*moveJewel*preferences*moveJewelWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name setSituation)
+(<o2> ^name moveJewel)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {setSituation*moveFood*preferences*moveFoodWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name setSituation)
+(<o2> ^name moveFood)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {setSituation*eatFood*preferences*eatFoodWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name setSituation)
+(<o2> ^name eatFood)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {setSituation*deliverLeaflet*preferences*deliverLeafletWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name setSituation)
+(<o2> ^name deliverLeaflet)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {setSituation*moveDeliver*preferences*moveDeliverWins
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name setSituation)
+(<o2> ^name moveDeliver)
+-->
+(<ss> ^operator <o2> > <o>)} 
+
+sp {getJewelNotInLeaflet*preferences
+(state <s> ^attribute operator 
+           ^impasse tie
+           ^item <o> {<> <o> <o2>}
+           ^superstate <ss>)
+(<ss> ^io.input-link <il>)
+(<o> ^name getJewelNotInLeaflet)
+(<o2> ^name <name>)
+-->
+(<ss> ^operator <o> > <o2>)} 
+
 
 sp {worst*case
     (state <s> ^impasse no-change ^superstate <ss>)
@@ -698,10 +945,11 @@ sp {worst*case
     (<ol> ^plan <plan>)
     -(<plan> ^0 <command>)
 -->
-    (<ol> ^MOVE <command>)
-    (<command> ^Vel 0)
-    (<command> ^VelR 2)
-    (<command> ^VelL 0)
+   (interrupt)
+   #  (<ol> ^MOVE <command>)
+   #  (<command> ^Vel 0)
+   #  (<command> ^VelR 2)
+   #  (<command> ^VelL 0)
 } 
 
 # sp {complete*condition
